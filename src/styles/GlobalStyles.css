@@ -595,3 +595,68 @@ button[style*="background: rgb(249, 250, 251)"][style*="justifyContent: space-be
   outline: 2px solid rgba(59, 130, 246, 0.3) !important;
   outline-offset: 2px !important;
 }
+
+/* Country selector styling */
+.country-select {
+  transition: all 0.2s ease;
+}
+
+.country-select:hover {
+  border-color: #3B82F6 !important;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15) !important;
+}
+
+.country-select:focus {
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  background: rgba(59, 130, 246, 0.02) !important;
+}
+
+.country-select:active {
+  transform: scale(0.98);
+}
+
+/* Country selector options */
+.country-select option {
+  padding: 12px;
+  background: white;
+  color: #1F2937;
+  font-weight: 500;
+}
+
+.country-select option:hover {
+  background: #EFF6FF;
+}
+
+/* Custom dropdown styling */
+.custom-dropdown-button:hover {
+  border-color: #3B82F6 !important;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15) !important;
+}
+
+.custom-dropdown-item:hover {
+  background: #F3F4F6 !important;
+  transform: translateX(2px);
+}
+
+.custom-dropdown-item:active {
+  background: #EFF6FF !important;
+}
+
+.custom-dropdown-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-dropdown-menu::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 12px;
+}
+
+.custom-dropdown-menu::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 12px;
+}
+
+.custom-dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}

@@ -19,43 +19,61 @@ import AdditionalMatches from './pages/AdditionalMatches';
 import Notifications from './pages/Notifications';
 import JoinWithCode from './pages/JoinWithCode';
 
+// Helper function to calculate age from DOB
+const calculateAge = (dob) => {
+  const today = new Date();
+  const birthDate = new Date(dob);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
 // Fake user data for testing
 const fakeUsers = {
   nihar: {
     name: 'Nihar',
+    dob: '2003-06-15',
     email: 'nihar@example.com',
-    phone: '+971 50 1234567',
+    phone: '+971 50 123 4567',
+    phoneCountry: 'AE',
     preferences: {
-      budget: 'moderate',
+      budget: 250,
       distance: 8,
       cuisines: ['Indian', 'Mediterranean', 'Chinese'],
-      dietary: ['Vegetarian'],
+      dietaryRestrictions: ['Vegetarian'],
       currency: 'AED',
       distanceUnit: 'km',
     },
   },
   kripa: {
     name: 'Kripa',
+    dob: '2004-03-22',
     email: 'kripa@example.com',
-    phone: '+971 50 2345678',
+    phone: '+1 555 234 5678',
+    phoneCountry: 'US',
     preferences: {
-      budget: 'moderate',
+      budget: 200,
       distance: 5,
       cuisines: ['Italian', 'Chinese'],
-      dietary: [],
+      dietaryRestrictions: [],
       currency: 'AED',
       distanceUnit: 'km',
     },
   },
   zara: {
     name: 'Zara',
+    dob: '2002-11-08',
     email: 'zara@example.com',
-    phone: '+971 50 3456789',
+    phone: '+91 98765 43210',
+    phoneCountry: 'IN',
     preferences: {
-      budget: 'high',
+      budget: 400,
       distance: 10,
       cuisines: ['Japanese', 'Mediterranean', 'Italian'],
-      dietary: ['Vegan'],
+      dietaryRestrictions: ['Vegan'],
       currency: 'AED',
       distanceUnit: 'km',
     },
@@ -68,8 +86,11 @@ const initializeFakeUsers = () => {
     if (!localStorage.getItem(`savora_user_${userId}`)) {
       localStorage.setItem(`savora_user_${userId}`, JSON.stringify({
         name: userData.name,
+        dob: userData.dob,
+        age: calculateAge(userData.dob),
         email: userData.email,
         phone: userData.phone,
+        phoneCountry: userData.phoneCountry,
       }));
     }
     if (!localStorage.getItem(`savora_preferences_${userId}`)) {

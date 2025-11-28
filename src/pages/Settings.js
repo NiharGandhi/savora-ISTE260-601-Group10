@@ -169,7 +169,7 @@ const Settings = () => {
             🚪 Log Out
           </button>
         </div>
-        <div style={{height: '20px'}}></div>
+        <div style={{ height: '20px' }}></div>
       </div>
 
       {/* Bottom Navigation */}
@@ -177,29 +177,29 @@ const Settings = () => {
         <div style={styles.bottomNav}>
           <button style={styles.navBtn} onClick={() => navigate('/home')}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
             </svg>
             <span style={styles.navLabel}>Home</span>
           </button>
           <button style={styles.navBtn} onClick={() => navigate('/groups')}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"/>
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75" />
             </svg>
             <span style={styles.navLabel}>Groups</span>
           </button>
           <button style={styles.navBtn} onClick={() => navigate('/explore')}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="M21 21l-4.35-4.35"/>
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
             </svg>
             <span style={styles.navLabel}>Explore</span>
           </button>
           <button style={styles.navBtnActive}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M12 1v6m0 6v10M1 12h6m6 0h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" class="lucide lucide-settings-icon lucide-settings">
+              <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+              <circle cx="12" cy="12" r="3" fill="white" />
             </svg>
             <span style={styles.navLabel}>Settings</span>
           </button>

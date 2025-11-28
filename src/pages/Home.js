@@ -67,34 +67,34 @@ const Home = () => {
   const completedDecisions = sessions.filter(s => s.status === 'completed').length;
 
   const mockRecommendations = [
-    { 
-      id: 1, 
-      name: 'Bella Italia', 
-      cuisine: 'Italian', 
-      rating: 4.8, 
-      price: '$$', 
+    {
+      id: 1,
+      name: 'Bella Italia',
+      cuisine: 'Italian',
+      rating: 4.8,
+      price: '$$',
       distance: '0.5 mi',
       match: 92,
       dietary: 'Both',
       tagline: 'Nearby'
     },
-    { 
-      id: 2, 
-      name: 'Sushi Station', 
-      cuisine: 'Japanese', 
-      rating: 4.7, 
-      price: '$$$', 
+    {
+      id: 2,
+      name: 'Sushi Station',
+      cuisine: 'Japanese',
+      rating: 4.7,
+      price: '$$$',
       distance: '1.2 mi',
       match: 88,
       dietary: 'Non-Veg',
       tagline: 'Trending in your area'
     },
-    { 
-      id: 3, 
-      name: 'Taco Town', 
-      cuisine: 'Mexican', 
-      rating: 4.5, 
-      price: '$', 
+    {
+      id: 3,
+      name: 'Taco Town',
+      cuisine: 'Mexican',
+      rating: 4.5,
+      price: '$',
       distance: '0.8 mi',
       match: 85,
       dietary: 'Both',
@@ -179,7 +179,7 @@ const Home = () => {
       <div className="mobile-screen-content" style={styles.content}>
         {/* Gradient Background */}
         <div style={styles.gradientBg} />
-        
+
         {/* Header */}
         <div style={styles.header}>
           <div>
@@ -201,173 +201,175 @@ const Home = () => {
           </div>
         </div>
         <div style={styles.contentWrapper}>
-        {/* Streak Card */}
-        <div style={styles.streakCard} className="scale-in">
-          <div style={styles.streakLeft}>
-            <div style={styles.streakIcon}>
-              <IoFlame size={36} color="#FF6B35" />
+          {/* Streak Card */}
+          <div style={styles.streakCard} className="scale-in">
+            <div style={styles.streakLeft}>
+              <div style={styles.streakIcon}>
+                <IoFlame size={36} color="#FF6B35" />
+              </div>
+              <div>
+                <div style={styles.streakNumber}>{streak || 0}</div>
+                <div style={styles.streakLabel}>day streak</div>
+              </div>
             </div>
-            <div>
-              <div style={styles.streakNumber}>{streak || 0}</div>
-              <div style={styles.streakLabel}>day streak</div>
+            <div style={styles.streakRight}>Keep going!</div>
+          </div>
+
+          {/* Stats */}
+          <div style={styles.statsContainer}>
+            <div style={styles.statItem}>
+              <div style={styles.statValue}>{groups.length}</div>
+              <div style={styles.statLabel}>Groups</div>
+            </div>
+            <div style={styles.statDivider} />
+            <div style={styles.statItem}>
+              <div style={styles.statValue}>{completedDecisions}</div>
+              <div style={styles.statLabel}>Decisions</div>
+            </div>
+            <div style={styles.statDivider} />
+            <div style={styles.statItem}>
+              <div style={styles.statValue}>{favorites.length}</div>
+              <div style={styles.statLabel}>Favorites</div>
             </div>
           </div>
-          <div style={styles.streakRight}>Keep going!</div>
-        </div>
 
-        {/* Stats */}
-        <div style={styles.statsContainer}>
-          <div style={styles.statItem}>
-            <div style={styles.statValue}>{groups.length}</div>
-            <div style={styles.statLabel}>Groups</div>
-          </div>
-          <div style={styles.statDivider} />
-          <div style={styles.statItem}>
-            <div style={styles.statValue}>{completedDecisions}</div>
-            <div style={styles.statLabel}>Decisions</div>
-          </div>
-          <div style={styles.statDivider} />
-          <div style={styles.statItem}>
-            <div style={styles.statValue}>{favorites.length}</div>
-            <div style={styles.statLabel}>Favorites</div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div style={styles.section}>
-          <h3 style={styles.sectionTitle}>Quick Actions</h3>
-          <div style={styles.actionsGrid}>
-            <button style={styles.primaryAction} onClick={() => navigate('/decision')}>
-              <div style={styles.actionLabel}>Create Decision</div>
-            </button>
-            <button style={styles.secondaryAction} onClick={() => navigate('/join')}>
-              <div style={styles.actionLabel}>Join with Code</div>
-            </button>
-          </div>
-        </div>
-
-        {/* Active Sessions - Sessions created by others that user can join */}
-        <div style={styles.section}>
-          <h3 style={styles.sectionTitle}>Join Active Sessions</h3>
-          {activeSessions.length > 0 ? (
-            <div style={styles.groupsList}>
-              {activeSessions.slice(0, 3).map((session) => {
-                // Determine session stage and display
-                let stage = 'Waiting';
-                let navigatePath = '/session/waiting';
-                let navigationState = {};
-                
-                if (session.stage === 'waiting' || !session.stage) {
-                  stage = 'Waiting';
-                  navigatePath = '/session/waiting';
-                  // Ensure participants is an array
-                  const participants = Array.isArray(session.participants) 
-                    ? session.participants 
-                    : [];
-                  navigationState = {
-                    sessionType: session.type || 'group',
-                    sessionCode: session.code,
-                    groupName: session.name,
-                    members: participants,
-                    sessionId: session.id,
-                    isCreator: false, // User joining someone else's session
-                  };
-                } else if (session.stage === 'preferences') {
-                  stage = 'Setting Preferences';
-                  navigatePath = `/preferences/${session.id}`;
-                } else if (session.stage === 'deciding') {
-                  stage = 'Deciding';
-                  navigatePath = `/preferences/${session.id}`;
-                } else if (session.stage === 'result') {
-                  stage = 'Results Ready';
-                  navigatePath = `/result/${session.id}`;
-                }
-                
-                const handleSessionClick = () => {
-                  if (navigatePath.includes('waiting')) {
-                    navigate(navigatePath, { state: navigationState });
-                  } else {
-                    navigate(navigatePath);
-                  }
-                };
-                
-                return (
-                  <div key={session.id} style={styles.groupCard} onClick={handleSessionClick}>
-                    <div style={styles.groupAvatar}>
-                      {session.icon ? getIconComponent(session.icon) : <IoPeople size={20} color="#6366F1" />}
-                    </div>
-                    <div style={styles.groupInfo}>
-                      <div style={styles.groupNameRow}>
-                        <div style={styles.groupName}>{session.name}</div>
-                        <div style={getSessionStageBadgeStyle(session.stage)}>
-                          {stage}
-                        </div>
-                      </div>
-                      <div style={styles.groupMembers}>
-                        Started by: {session.creatorName || user?.name || 'You'}
-                      </div>
-                    </div>
-                    <div style={styles.groupArrow}>→</div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div style={styles.emptyState}>
-              <div style={styles.emptyIcon}>👥</div>
-              <div style={styles.emptyTitle}>No active sessions</div>
-              <div style={styles.emptyText}>Start a new decision or join with a code</div>
-              <button
-                style={styles.emptyButton}
-                onClick={() => navigate('/decision')}
-              >
-                Start Decision
+          {/* Quick Actions */}
+          <div style={styles.section}>
+            <h3 style={styles.sectionTitle}>Quick Actions</h3>
+            <div style={styles.actionsGrid}>
+              <button style={styles.primaryAction} onClick={() => navigate('/decision')}>
+                <div style={styles.actionLabel}>Create Decision</div>
+              </button>
+              <button style={styles.secondaryAction} onClick={() => navigate('/join')}>
+                <div style={styles.actionLabel}>Join with Code</div>
               </button>
             </div>
-          )}
-        </div>        
+          </div>
 
-        {/* Recommendations */}
-        <div style={styles.section}>
-          <h3 style={styles.sectionTitle}>Recommended</h3>
-          <div style={styles.restaurantsList}>
-            {mockRecommendations.map((restaurant) => (
-              <div key={restaurant.id} style={styles.restaurantCard} onClick={() => navigate('/explore')}>
-                {/* Match Badge */}
-                <div style={styles.matchBadge}>
-                  {restaurant.match}%
-                </div>
+          {/* Active Sessions - Sessions created by others that user can join */}
+          <div style={styles.section}>
+            <h3 style={styles.sectionTitle}>Join Active Sessions</h3>
+            {activeSessions.length > 0 ? (
+              <div style={styles.groupsList}>
+                {activeSessions.slice(0, 3).map((session) => {
+                  // Determine session stage and display
+                  let stage = 'Waiting';
+                  let navigatePath = '/session/waiting';
+                  let navigationState = {};
 
-                <div style={styles.restaurantContent}>
-                  <div style={styles.restaurantInfo}>
-                    <div style={styles.restaurantNameRow}>
-                      <div style={styles.restaurantName}>{restaurant.name}</div>
-                      <div style={styles.restaurantRating}>
-                        <IoStar size={14} color="#FBBF24" />
-                        <span style={styles.ratingValue}>{restaurant.rating}</span>
+                  if (session.stage === 'waiting' || !session.stage) {
+                    stage = 'Waiting';
+                    navigatePath = '/session/waiting';
+                    // Ensure participants is an array
+                    const participants = Array.isArray(session.participants)
+                      ? session.participants
+                      : [];
+                    navigationState = {
+                      sessionType: session.type || 'group',
+                      sessionCode: session.code,
+                      groupName: session.name,
+                      members: participants,
+                      sessionId: session.id,
+                      isCreator: false, // User joining someone else's session
+                    };
+                  } else if (session.stage === 'preferences') {
+                    stage = 'Setting Preferences';
+                    navigatePath = `/preferences/${session.id}`;
+                  } else if (session.stage === 'deciding') {
+                    stage = 'Deciding';
+                    navigatePath = `/preferences/${session.id}`;
+                  } else if (session.stage === 'result') {
+                    stage = 'Results Ready';
+                    navigatePath = `/result/${session.id}`;
+                  }
+
+                  const handleSessionClick = () => {
+                    if (navigatePath.includes('waiting')) {
+                      navigate(navigatePath, { state: navigationState });
+                    } else {
+                      navigate(navigatePath);
+                    }
+                  };
+
+                  return (
+                    <div key={session.id} style={styles.groupCard} onClick={handleSessionClick}>
+                      <div style={styles.groupAvatar}>
+                        {session.icon ? getIconComponent(session.icon) : <IoPeople size={20} color="#6366F1" />}
                       </div>
+                      <div style={styles.groupInfo}>
+                        <div style={styles.groupNameRow}>
+                          <div style={styles.groupName}>{session.name}</div>
+                          <div style={getSessionStageBadgeStyle(session.stage)}>
+                            {stage}
+                          </div>
+                        </div>
+                        <div style={styles.groupMembers}>
+                          Started by: {session.creatorName || user?.name || 'You'}
+                        </div>
+                      </div>
+                      <div style={styles.groupArrow}>→</div>
                     </div>
-                    
-                    {/* Tagline */}
-                    <div style={styles.tagline}>
-                      {restaurant.tagline}
-                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={styles.emptyState}>
+                <div style={styles.emptyIcon}>
+                  <IoPeople size={60} color={theme.colors.primary.main} />
+                </div>
+                <div style={styles.emptyTitle}>No active sessions</div>
+                <div style={styles.emptyText}>Start a new decision or join with a code</div>
+                <button
+                  style={styles.emptyButton}
+                  onClick={() => navigate('/decision')}
+                >
+                  Start Decision
+                </button>
+              </div>
+            )}
+          </div>
 
-                    {/* Badges Row */}
-                    <div style={styles.badgesRow}>
-                      <span style={styles.cuisineBadge}>{restaurant.cuisine}</span>
-                      <span style={getDietaryBadgeStyle(restaurant.dietary)}>
-                        {restaurant.dietary === 'Both' ? 'Mixed' : restaurant.dietary}
-                      </span>
+          {/* Recommendations */}
+          <div style={styles.section}>
+            <h3 style={styles.sectionTitle}>Recommended</h3>
+            <div style={styles.restaurantsList}>
+              {mockRecommendations.map((restaurant) => (
+                <div key={restaurant.id} style={styles.restaurantCard} onClick={() => navigate('/explore')}>
+                  {/* Match Badge */}
+                  <div style={styles.matchBadge}>
+                    {restaurant.match}%
+                  </div>
+
+                  <div style={styles.restaurantContent}>
+                    <div style={styles.restaurantInfo}>
+                      <div style={styles.restaurantNameRow}>
+                        <div style={styles.restaurantName}>{restaurant.name}</div>
+                        <div style={styles.restaurantRating}>
+                          <IoStar size={14} color="#FBBF24" />
+                          <span style={styles.ratingValue}>{restaurant.rating}</span>
+                        </div>
+                      </div>
+
+                      {/* Tagline */}
+                      <div style={styles.tagline}>
+                        {restaurant.tagline}
+                      </div>
+
+                      {/* Badges Row */}
+                      <div style={styles.badgesRow}>
+                        <span style={styles.cuisineBadge}>{restaurant.cuisine}</span>
+                        <span style={getDietaryBadgeStyle(restaurant.dietary)}>
+                          {restaurant.dietary === 'Both' ? 'Mixed' : restaurant.dietary}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div style={{height: '100px'}}></div>
+          <div style={{ height: '100px' }}></div>
         </div>
       </div>
 
@@ -376,29 +378,29 @@ const Home = () => {
         <div style={styles.bottomNav}>
           <button style={styles.navBtnActive}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
             </svg>
             <span style={styles.navLabel}>Home</span>
           </button>
           <button style={styles.navBtn} onClick={() => navigate('/groups')}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"/>
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75" />
             </svg>
             <span style={styles.navLabel}>Groups</span>
           </button>
           <button style={styles.navBtn} onClick={() => navigate('/explore')}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="M21 21l-4.35-4.35"/>
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
             </svg>
             <span style={styles.navLabel}>Explore</span>
           </button>
           <button style={styles.navBtn} onClick={() => navigate('/settings')}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M12 1v6m0 6v10M1 12h6m6 0h10"/>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="lucide lucide-settings-icon lucide-settings">
+              <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+              <circle cx="12" cy="12" r="3" />
             </svg>
             <span style={styles.navLabel}>Settings</span>
           </button>
