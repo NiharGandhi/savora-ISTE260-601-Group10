@@ -199,6 +199,41 @@ export const UserProvider = ({ children, userId = 'default' }) => {
     localStorage.setItem(getStorageKey('notifications'), JSON.stringify(newNotifications));
   };
 
+  // Load user by email and password (for sign in)
+  const loadUserByEmail = (email, password) => {
+    const savedUser = localStorage.getItem(getStorageKey('user'));
+
+    if (!savedUser) {
+      return false;
+    }
+
+    const userData = JSON.parse(savedUser);
+
+    // Check if email and password match
+    if (userData.email === email && userData.password === password) {
+      setUser(userData);
+
+      // Also load all other user data
+      const savedPreferences = localStorage.getItem(getStorageKey('preferences'));
+      const savedGroups = localStorage.getItem(getStorageKey('groups'));
+      const savedSessions = localStorage.getItem(getStorageKey('sessions'));
+      const savedFavorites = localStorage.getItem(getStorageKey('favorites'));
+      const savedStreak = localStorage.getItem(getStorageKey('streak'));
+      const savedNotifications = localStorage.getItem(getStorageKey('notifications'));
+
+      if (savedPreferences) setPreferences(JSON.parse(savedPreferences));
+      if (savedGroups) setGroups(JSON.parse(savedGroups));
+      if (savedSessions) setSessions(JSON.parse(savedSessions));
+      if (savedFavorites) setFavorites(JSON.parse(savedFavorites));
+      if (savedStreak) setStreak(parseInt(savedStreak));
+      if (savedNotifications) setNotifications(JSON.parse(savedNotifications));
+
+      return true;
+    }
+
+    return false;
+  };
+
   const value = {
     user,
     preferences,
@@ -220,6 +255,7 @@ export const UserProvider = ({ children, userId = 'default' }) => {
     acceptInvitation,
     declineInvitation,
     markNotificationAsRead,
+    loadUserByEmail,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

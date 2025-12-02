@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { theme } from '../styles/theme';
+import { IoStar, IoClose, IoLogoInstagram, IoLogoTiktok, IoLogoWhatsapp, IoSearch } from 'react-icons/io5';
 
 const Explore = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('recommended');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const recommendations = [
     {
@@ -14,7 +16,9 @@ const Explore = () => {
       rating: 4.8,
       price: '$$',
       distance: '0.6 mi',
-      image: '🍝',
+      match: 92,
+      dietary: 'Both',
+      tagline: 'Authentic Italian cuisine',
       trending: true,
     },
     {
@@ -24,7 +28,9 @@ const Explore = () => {
       rating: 4.7,
       price: '$$$',
       distance: '1.1 mi',
-      image: '🍣',
+      match: 88,
+      dietary: 'Non-Veg',
+      tagline: 'Fresh sushi daily',
       trending: false,
     },
     {
@@ -34,7 +40,9 @@ const Explore = () => {
       rating: 4.5,
       price: '$',
       distance: '0.8 mi',
-      image: '🌮',
+      match: 85,
+      dietary: 'Both',
+      tagline: 'Best tacos in town',
       trending: true,
     },
     {
@@ -44,7 +52,33 @@ const Explore = () => {
       rating: 4.6,
       price: '$$',
       distance: '1.5 mi',
-      image: '🥢',
+      match: 82,
+      dietary: 'Both',
+      tagline: 'Authentic Chinese food',
+      trending: false,
+    },
+    {
+      id: 5,
+      name: 'Green Leaf Bistro',
+      cuisine: 'Vegan',
+      rating: 4.9,
+      price: '$$',
+      distance: '0.4 mi',
+      match: 95,
+      dietary: 'Veg',
+      tagline: 'Plant-based paradise',
+      trending: true,
+    },
+    {
+      id: 6,
+      name: 'Spice Garden',
+      cuisine: 'Indian',
+      rating: 4.7,
+      price: '$$$',
+      distance: '2.0 mi',
+      match: 90,
+      dietary: 'Both',
+      tagline: 'Traditional Indian spices',
       trending: false,
     },
   ];
@@ -52,43 +86,154 @@ const Explore = () => {
   const socialShares = [
     {
       id: 1,
-      user: 'Sarah M.',
       restaurant: 'Campus Burger Joint',
-      image: '🍔',
-      comment: 'Best burger ever! Perfect for late night study sessions',
-      likes: 45,
-      timeAgo: '2h ago',
+      cuisine: 'American',
+      rating: 4.6,
+      match: 78,
+      dietary: 'Both',
+      tagline: 'Best burger ever! Perfect for late night study sessions',
+      sharedFrom: 'Instagram',
     },
     {
       id: 2,
-      user: 'Mike R.',
       restaurant: 'Green Bowl Cafe',
-      image: '🥗',
-      comment: 'Healthy and delicious! Great vegan options',
-      likes: 32,
-      timeAgo: '5h ago',
+      cuisine: 'Healthy',
+      rating: 4.8,
+      match: 88,
+      dietary: 'Veg',
+      tagline: 'Healthy and delicious! Great vegan options',
+      sharedFrom: 'TikTok',
     },
     {
       id: 3,
-      user: 'Emily L.',
       restaurant: 'Pizza Paradise',
-      image: '🍕',
-      comment: 'Group dinner was amazing! Huge slices',
-      likes: 58,
-      timeAgo: '1d ago',
+      cuisine: 'Italian',
+      rating: 4.5,
+      match: 82,
+      dietary: 'Both',
+      tagline: 'Group dinner was amazing! Huge slices',
+      sharedFrom: 'WhatsApp',
+    },
+    {
+      id: 4,
+      restaurant: 'Sushi Master',
+      cuisine: 'Japanese',
+      rating: 4.7,
+      match: 88,
+      dietary: 'Non-Veg',
+      tagline: 'Fresh sushi daily',
+      sharedFrom: 'Instagram',
+    },
+    {
+      id: 5,
+      restaurant: 'Dragon Wok',
+      cuisine: 'Chinese',
+      rating: 4.6,
+      match: 82,
+      dietary: 'Both',
+      tagline: 'Authentic Chinese food',
+      sharedFrom: 'TikTok',
     },
   ];
+
+  const getDietaryBadgeStyle = (dietary) => {
+    const baseStyle = {
+      ...styles.dietaryBadge,
+    };
+
+    switch (dietary) {
+      case 'Veg':
+        return {
+          ...baseStyle,
+          background: 'rgba(34, 197, 94, 0.15)',
+          color: '#22C55E',
+          border: '1px solid rgba(34, 197, 94, 0.3)',
+        };
+      case 'Non-Veg':
+        return {
+          ...baseStyle,
+          background: 'rgba(239, 68, 68, 0.15)',
+          color: '#EF4444',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+        };
+      case 'Both':
+        return {
+          ...baseStyle,
+          background: 'rgba(59, 130, 246, 0.15)',
+          color: '#3B82F6',
+          border: '1px solid rgba(59, 130, 246, 0.3)',
+        };
+      default:
+        return baseStyle;
+    }
+  };
+
+  const getSharedFromStyle = (platform) => {
+    switch (platform) {
+      case 'Instagram':
+        return {
+          icon: IoLogoInstagram,
+          background: 'linear-gradient(45deg, #F58529, #DD2A7B, #8134AF, #515BD4)',
+          color: 'white',
+        };
+      case 'TikTok':
+        return {
+          icon: IoLogoTiktok,
+          background: '#000000',
+          color: '#00F2EA',
+        };
+      case 'WhatsApp':
+        return {
+          icon: IoLogoWhatsapp,
+          background: '#25D366',
+          color: 'white',
+        };
+      default:
+        return {
+          icon: null,
+          background: 'rgba(107, 114, 128, 0.1)',
+          color: theme.colors.text.secondary,
+        };
+    }
+  };
+
+  // Filter restaurants based on search query
+  const filteredRecommendations = recommendations.filter(restaurant =>
+    restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    restaurant.tagline.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredSocialShares = socialShares.filter(share =>
+    share.restaurant.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    share.cuisine.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    share.tagline.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div style={styles.container}>
       {/* Header */}
       <div style={styles.header}>
         <h2 style={styles.title}>Explore</h2>
-        <button style={styles.searchButton}>🔍</button>
+        <div style={styles.searchInputContainer}>
+          <IoSearch size={20} style={styles.searchIcon} color={theme.colors.text.secondary} />
+          <input
+            type="text"
+            placeholder="Search restaurants..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={styles.searchInput}
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery('')} style={styles.clearButton}>
+              <IoClose size={18} color={theme.colors.text.secondary} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}
-      <div style={styles.tabs}>
+      <div style={styles.tabsContainer}>
         <button
           style={{
             ...styles.tab,
@@ -112,74 +257,122 @@ const Explore = () => {
       <div className="mobile-screen-content" style={styles.content}>
         {activeTab === 'recommended' && (
           <div className="fade-in">
-            <div style={styles.filterSection}>
-              <div style={styles.filterLabel}>Filter by:</div>
-              <div style={styles.filterButtons}>
-                <button style={styles.filterButton}>All</button>
-                <button style={styles.filterButton}>Nearby</button>
-                <button style={styles.filterButton}>Trending 🔥</button>
-                <button style={styles.filterButton}>Top Rated ⭐</button>
+            {searchQuery && (
+              <div style={styles.searchResultsHeader}>
+                Found {filteredRecommendations.length} restaurant{filteredRecommendations.length !== 1 ? 's' : ''}
               </div>
-            </div>
+            )}
+            <div style={styles.restaurantsList}>
+              {filteredRecommendations.length > 0 ? (
+                filteredRecommendations.map((restaurant) => (
+                  <div key={restaurant.id} style={styles.restaurantCard}>
+                    {/* Match Badge */}
+                    <div style={styles.matchBadge}>
+                      {restaurant.match}% match
+                    </div>
 
-            <div style={styles.restaurantGrid}>
-              {recommendations.map((restaurant) => (
-                <div key={restaurant.id} style={styles.restaurantCard}>
-                  {restaurant.trending && (
-                    <div style={styles.trendingBadge}>🔥 Trending</div>
-                  )}
-                  <div style={styles.cardImage}>{restaurant.image}</div>
-                  <div style={styles.cardContent}>
-                    <h3 style={styles.cardTitle}>{restaurant.name}</h3>
-                    <div style={styles.cardMeta}>
-                      {restaurant.cuisine} • {restaurant.price}
+                    <div style={styles.restaurantContent}>
+                      <div style={styles.restaurantInfo}>
+                        <div style={styles.restaurantNameRow}>
+                          <div style={styles.restaurantName}>
+                            {restaurant.name}
+                            <span style={styles.restaurantRating}>
+                              <IoStar size={14} color="#FBBF24" />
+                              <span style={styles.ratingValue}>{restaurant.rating}</span>
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Tagline */}
+                        <div style={styles.tagline}>
+                          {restaurant.tagline}
+                        </div>
+
+                        {/* Badges Row */}
+                        <div style={styles.badgesRow}>
+                          <span style={styles.cuisineBadge}>{restaurant.cuisine}</span>
+                          <span style={getDietaryBadgeStyle(restaurant.dietary)}>
+                            {restaurant.dietary === 'Both' ? 'Mixed' : restaurant.dietary}
+                          </span>
+                          {restaurant.trending && (
+                            <span style={styles.trendingBadge}>🔥 Trending</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div style={styles.cardFooter}>
-                      <span>⭐ {restaurant.rating}</span>
-                      <span>📍 {restaurant.distance}</span>
-                    </div>
-                    <button style={styles.viewButton}>View Details</button>
                   </div>
+                ))
+              ) : (
+                <div style={styles.noResults}>
+                  <span style={styles.noResultsEmoji}>🔍</span>
+                  <p style={styles.noResultsText}>No restaurants found</p>
+                  <p style={styles.noResultsSubtext}>Try a different search term</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}
 
         {activeTab === 'social' && (
           <div className="fade-in">
-            <div style={styles.socialFeed}>
-              {socialShares.map((share) => (
-                <div key={share.id} style={styles.socialCard}>
-                  <div style={styles.socialHeader}>
-                    <div style={styles.userAvatar}>
-                      {share.user.charAt(0)}
-                    </div>
-                    <div style={styles.socialInfo}>
-                      <div style={styles.userName}>{share.user}</div>
-                      <div style={styles.timeAgo}>{share.timeAgo}</div>
-                    </div>
-                  </div>
+            {searchQuery && (
+              <div style={styles.searchResultsHeader}>
+                Found {filteredSocialShares.length} post{filteredSocialShares.length !== 1 ? 's' : ''}
+              </div>
+            )}
+            <div style={styles.restaurantsList}>
+              {filteredSocialShares.length > 0 ? (
+                filteredSocialShares.map((share) => {
+                  const sharedFromStyle = getSharedFromStyle(share.sharedFrom);
+                  const IconComponent = sharedFromStyle.icon;
 
-                  <div style={styles.socialContent}>
-                    <div style={styles.socialRestaurant}>
-                      <div style={styles.socialImage}>{share.image}</div>
-                      <div style={styles.socialRestaurantName}>
-                        {share.restaurant}
+                  return (
+                    <div key={share.id} style={styles.restaurantCard}>
+                      {/* Shared From Badge */}
+                      <div style={{
+                        ...styles.sharedFromBadge,
+                        background: sharedFromStyle.background,
+                        color: sharedFromStyle.color,
+                      }}>
+                        Shared from {IconComponent && <IconComponent size={14} style={{ marginLeft: '4px' }} />}
+                      </div>
+
+                    <div style={styles.restaurantContent}>
+                      <div style={styles.restaurantInfo}>
+                        <div style={styles.restaurantNameRow}>
+                          <div style={styles.restaurantName}>
+                            {share.restaurant}
+                            <span style={styles.restaurantRating}>
+                              <IoStar size={14} color="#FBBF24" />
+                              <span style={styles.ratingValue}>{share.rating}</span>
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Tagline */}
+                        <div style={styles.tagline}>
+                          {share.tagline}
+                        </div>
+
+                        {/* Badges Row */}
+                        <div style={styles.badgesRow}>
+                          <span style={styles.cuisineBadge}>{share.cuisine}</span>
+                          <span style={getDietaryBadgeStyle(share.dietary)}>
+                            {share.dietary === 'Both' ? 'Mixed' : share.dietary}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <p style={styles.socialComment}>{share.comment}</p>
-                  </div>
-
-                  <div style={styles.socialActions}>
-                    <button style={styles.likeButton}>
-                      ❤️ {share.likes}
-                    </button>
-                    <button style={styles.commentButton}>💬 Comment</button>
-                    <button style={styles.shareButton}>🔗 Share</button>
-                  </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div style={styles.noResults}>
+                  <span style={styles.noResultsEmoji}>🔍</span>
+                  <p style={styles.noResultsText}>No posts found</p>
+                  <p style={styles.noResultsSubtext}>Try a different search term</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}
@@ -211,7 +404,7 @@ const Explore = () => {
             <span style={styles.navLabel}>Explore</span>
           </button>
           <button style={styles.navBtn} onClick={() => navigate('/settings')}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="lucide lucide-settings-icon lucide-settings">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
               <circle cx="12" cy="12" r="3" />
             </svg>
@@ -233,236 +426,224 @@ const styles = {
   header: {
     background: 'white',
     padding: '40px 20px 16px 20px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     borderBottom: '1px solid #E5E7EB',
   },
   title: {
     fontSize: '24px',
     fontWeight: '700',
     color: theme.colors.text.primary,
-    margin: 0,
+    margin: '0 0 16px 0',
   },
-  searchButton: {
+  searchInputContainer: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  searchIcon: {
+    position: 'absolute',
+    left: '14px',
+    zIndex: 1,
+    pointerEvents: 'none',
+  },
+  searchInput: {
+    width: '100%',
+    padding: '12px 16px 12px 42px',
+    border: `1px solid ${theme.colors.border.medium}`,
+    borderRadius: '12px',
+    fontSize: '15px',
+    outline: 'none',
+    background: '#F9FAFB',
+    transition: 'all 0.2s ease',
+  },
+  clearButton: {
+    position: 'absolute',
+    right: '10px',
     background: 'none',
     border: 'none',
-    fontSize: '24px',
     cursor: 'pointer',
+    padding: '6px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '50%',
+    transition: 'background 0.2s ease',
   },
-  tabs: {
+  tabsContainer: {
     background: 'white',
     display: 'flex',
-    padding: '0 24px',
+    padding: '0 20px',
+    gap: '8px',
     borderBottom: '1px solid #E5E7EB',
   },
   tab: {
+    flex: 1,
     background: 'none',
     border: 'none',
-    padding: '16px 0',
-    marginRight: '32px',
-    fontSize: '16px',
+    padding: '14px 16px',
+    fontSize: '15px',
     fontWeight: '600',
     color: theme.colors.text.secondary,
     cursor: 'pointer',
-    borderBottom: '2px solid transparent',
-    transition: 'all 0.25s ease',
+    borderBottom: '3px solid transparent',
+    transition: 'all 0.2s ease',
+    textAlign: 'center',
   },
   tabActive: {
     color: theme.colors.primary.main,
-    borderBottom: `2px solid ${theme.colors.primary.main}`,
+    borderBottom: `3px solid ${theme.colors.primary.main}`,
   },
   content: {
     padding: '16px',
   },
-  filterSection: {
-    marginBottom: '24px',
-  },
-  filterLabel: {
+  searchResultsHeader: {
     fontSize: '14px',
     fontWeight: '600',
-    color: theme.colors.text.primary,
-    marginBottom: '12px',
-  },
-  filterButtons: {
-    display: 'flex',
-    gap: '8px',
-    overflowX: 'auto',
-  },
-  filterButton: {
-    background: 'white',
-    border: `1px solid ${theme.colors.border.light}`,
-    borderRadius: '20px',
-    padding: '8px 16px',
-    fontSize: '14px',
-    fontWeight: '600',
-    color: theme.colors.text.primary,
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-  },
-  restaurantGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '16px',
-  },
-  restaurantCard: {
-    background: 'white',
-    borderRadius: '16px',
-    overflow: 'hidden',
-    boxShadow: theme.shadows.sm,
-    position: 'relative',
-  },
-  trendingBadge: {
-    position: 'absolute',
-    top: '8px',
-    right: '8px',
-    background: theme.colors.warning,
-    color: 'white',
-    fontSize: '10px',
-    fontWeight: '600',
-    padding: '4px 8px',
-    borderRadius: '8px',
-    zIndex: 1,
-  },
-  cardImage: {
-    height: '100px',
-    background: theme.colors.background.gray,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '48px',
-  },
-  cardContent: {
-    padding: '12px',
-  },
-  cardTitle: {
-    fontSize: '16px',
-    fontWeight: '600',
-    color: theme.colors.text.primary,
-    marginBottom: '4px',
-  },
-  cardMeta: {
-    fontSize: '12px',
     color: theme.colors.text.secondary,
-    marginBottom: '8px',
+    marginBottom: '16px',
+    padding: '0 4px',
   },
-  cardFooter: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    fontSize: '12px',
-    color: theme.colors.text.secondary,
-    marginBottom: '12px',
-  },
-  viewButton: {
-    width: '100%',
-    background: theme.colors.primary.main,
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    padding: '8px',
-    fontSize: '14px',
-    fontWeight: '600',
-    cursor: 'pointer',
-  },
-  socialFeed: {
+  restaurantsList: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
+    gap: '12px',
   },
-  socialCard: {
-    background: 'white',
+  restaurantCard: {
+    background: 'rgba(255, 255, 255, 0.95)',
     borderRadius: '16px',
-    padding: '16px',
-    boxShadow: theme.shadows.sm,
+    padding: '12px 16px',
+    cursor: 'pointer',
+    border: '1px solid rgba(255, 255, 255, 0.5)',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
   },
-  socialHeader: {
+  matchBadge: {
+    position: 'absolute',
+    top: '12px',
+    right: '16px',
+    background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
+    color: 'white',
+    fontSize: '12px',
+    fontWeight: '700',
+    padding: '4px 8px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 6px rgba(59, 130, 246, 0.3)',
+  },
+  sharedFromBadge: {
+    position: 'absolute',
+    bottom: '12px',
+    right: '16px',
+    fontSize: '10px',
+    fontWeight: '700',
+    padding: '5px 9px',
+    borderRadius: '6px',
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
-    marginBottom: '12px',
+    gap: '3px',
+    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
   },
-  userAvatar: {
-    width: '40px',
-    height: '40px',
-    borderRadius: '50%',
-    background: theme.colors.primary.main,
-    color: 'white',
+  restaurantContent: {
     display: 'flex',
+    gap: '12px',
+    alignItems: 'flex-start',
+  },
+  restaurantInfo: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  restaurantNameRow: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: '8px',
+    paddingRight: '45px',
+  },
+  restaurantName: {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    flexWrap: 'wrap',
+  },
+  restaurantRating: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '3px',
+    padding: '3px 7px',
+    borderRadius: '6px',
+    background: 'rgba(251, 191, 36, 0.15)',
+    flexShrink: 0,
+  },
+  ratingValue: {
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+    fontSize: '12px',
+    lineHeight: '1',
+  },
+  tagline: {
+    fontSize: '13px',
+    color: theme.colors.text.secondary,
+    lineHeight: '1.4',
+  },
+  badgesRow: {
+    display: 'flex',
+    gap: '6px',
+    flexWrap: 'wrap',
+  },
+  cuisineBadge: {
+    fontSize: '11px',
+    fontWeight: '600',
+    padding: '3px 8px',
+    borderRadius: '6px',
+    background: 'rgba(147, 197, 253, 0.2)',
+    color: '#3B82F6',
+    border: '1px solid rgba(59, 130, 246, 0.3)',
+    lineHeight: '1',
+  },
+  dietaryBadge: {
+    fontSize: '11px',
+    fontWeight: '600',
+    padding: '3px 8px',
+    borderRadius: '6px',
+    lineHeight: '1',
+  },
+  trendingBadge: {
+    background: 'rgba(251, 146, 60, 0.15)',
+    color: '#F97316',
+    fontSize: '11px',
+    fontWeight: '600',
+    padding: '3px 8px',
+    borderRadius: '6px',
+    border: '1px solid rgba(251, 146, 60, 0.3)',
+    lineHeight: '1',
+  },
+  noResults: {
+    display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '16px',
-    fontWeight: '600',
+    padding: '60px 20px',
   },
-  socialInfo: {
-    flex: 1,
+  noResultsEmoji: {
+    fontSize: '64px',
+    marginBottom: '16px',
   },
-  userName: {
-    fontSize: '14px',
+  noResultsText: {
+    fontSize: '18px',
     fontWeight: '600',
     color: theme.colors.text.primary,
-  },
-  timeAgo: {
-    fontSize: '12px',
-    color: theme.colors.text.secondary,
-  },
-  socialContent: {
-    marginBottom: '12px',
-  },
-  socialRestaurant: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
     marginBottom: '8px',
-    background: theme.colors.background.light,
-    padding: '12px',
-    borderRadius: '12px',
   },
-  socialImage: {
-    fontSize: '32px',
-  },
-  socialRestaurantName: {
-    fontSize: '16px',
-    fontWeight: '600',
-    color: theme.colors.text.primary,
-  },
-  socialComment: {
+  noResultsSubtext: {
     fontSize: '14px',
-    color: theme.colors.text.primary,
-    lineHeight: '1.5',
-  },
-  socialActions: {
-    display: 'flex',
-    gap: '12px',
-    paddingTop: '12px',
-    borderTop: '1px solid #E5E7EB',
-  },
-  likeButton: {
-    background: 'none',
-    border: 'none',
-    fontSize: '14px',
-    fontWeight: '600',
     color: theme.colors.text.secondary,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
-  },
-  commentButton: {
-    background: 'none',
-    border: 'none',
-    fontSize: '14px',
-    fontWeight: '600',
-    color: theme.colors.text.secondary,
-    cursor: 'pointer',
-  },
-  shareButton: {
-    background: 'none',
-    border: 'none',
-    fontSize: '14px',
-    fontWeight: '600',
-    color: theme.colors.text.secondary,
-    cursor: 'pointer',
-    marginLeft: 'auto',
   },
   bottomNav: {
     display: 'grid',

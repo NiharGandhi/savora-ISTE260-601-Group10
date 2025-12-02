@@ -5,11 +5,14 @@ import MobileFrame from './components/MobileFrame';
 
 // Pages
 import SplashScreen from './pages/SplashScreen';
+import Landing from './pages/Landing';
+import SignIn from './pages/SignIn';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import Decision from './pages/Decision';
 import CreateGroup from './pages/CreateGroup';
 import Groups from './pages/Groups';
+import GroupDetails from './pages/GroupDetails';
 import Preferences from './pages/Preferences';
 import Result from './pages/Result';
 import Explore from './pages/Explore';
@@ -121,11 +124,14 @@ const AppRoutes = ({ userId, useMemoryRouter = false }) => {
         <MobileFrame>
           <Routes>
             <Route path="/" element={<SplashScreen />} />
+            <Route path="/landing" element={<Landing />} />
+            <Route path="/signin" element={<SignIn />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/home" element={<Home />} />
             <Route path="/decision" element={<Decision />} />
             <Route path="/create-group" element={<CreateGroup />} />
             <Route path="/groups" element={<Groups />} />
+            <Route path="/group/:id" element={<GroupDetails />} />
             <Route path="/session/waiting" element={<SessionWaiting />} />
             <Route path="/preferences/:sessionId" element={<Preferences />} />
             <Route path="/result/:sessionId" element={<Result />} />

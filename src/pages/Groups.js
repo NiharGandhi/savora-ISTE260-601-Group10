@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { theme } from '../styles/theme';
-import { IoPeople, IoRestaurant, IoPizza, IoBeer, IoCafe, IoFastFood, IoWine, IoIceCream, IoNutrition, IoBriefcase, IoHome, IoSearch } from 'react-icons/io5';
+import { IoPeople, IoRestaurant, IoPizza, IoBeer, IoCafe, IoFastFood, IoWine, IoIceCream, IoNutrition, IoBriefcase, IoHome, IoSearch, IoPeopleCircle, IoSearchCircle } from 'react-icons/io5';
 
 const Groups = () => {
   const navigate = useNavigate();
@@ -93,7 +93,9 @@ const Groups = () => {
           <div style={styles.emptyState}>
             {groups.length === 0 ? (
               <>
-                <div style={styles.emptyIcon}>👥</div>
+                <div style={styles.emptyIcon}>
+                  <IoPeopleCircle size={80} color={theme.colors.text.tertiary} />
+                </div>
                 <h3 style={styles.emptyTitle}>No Groups Yet</h3>
                 <p style={styles.emptyText}>
                   Create a group to start making dining decisions together
@@ -107,7 +109,9 @@ const Groups = () => {
               </>
             ) : (
               <>
-                <div style={styles.emptyIcon}>🔍</div>
+                <div style={styles.emptyIcon}>
+                  <IoSearchCircle size={80} color={theme.colors.text.tertiary} />
+                </div>
                 <h3 style={styles.emptyTitle}>No Groups Found</h3>
                 <p style={styles.emptyText}>
                   No groups match "{searchQuery}"
@@ -276,8 +280,9 @@ const styles = {
     padding: '48px 24px',
   },
   emptyIcon: {
-    fontSize: '64px',
     marginBottom: '16px',
+    display: 'flex',
+    justifyContent: 'center',
   },
   emptyTitle: {
     fontSize: '20px',
@@ -292,7 +297,7 @@ const styles = {
     lineHeight: '1.5',
   },
   createButton: {
-    background: theme.colors.primary.blueGradient,
+    background: theme.colors.primary.gradient,
     color: 'white',
     border: 'none',
     borderRadius: '12px',
@@ -300,7 +305,9 @@ const styles = {
     fontSize: '16px',
     fontWeight: '600',
     cursor: 'pointer',
-    boxShadow: theme.shadows.md,
+    boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+    position: 'relative',
+    zIndex: 10,
   },
   bottomNav: {
     display: 'grid',

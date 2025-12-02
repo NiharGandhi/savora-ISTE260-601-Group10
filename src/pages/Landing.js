@@ -1,26 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { theme } from '../styles/theme';
 
-const SplashScreen = () => {
+const Landing = () => {
   const navigate = useNavigate();
-  const [showContent, setShowContent] = useState(false);
-
-  useEffect(() => {
-    // Trigger animations
-    setTimeout(() => setShowContent(true), 100);
-
-    const timer = setTimeout(() => {
-      const hasOnboarded = localStorage.getItem('savora_user');
-      if (hasOnboarded) {
-        navigate('/home');
-      } else {
-        navigate('/landing');
-      }
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [navigate]);
 
   return (
     <div style={styles.container}>
@@ -29,13 +12,8 @@ const SplashScreen = () => {
       <div style={styles.bgCircle2}></div>
       <div style={styles.bgCircle3}></div>
 
-      <div style={{
-        ...styles.content,
-        opacity: showContent ? 1 : 0,
-        transform: showContent ? 'translateY(0)' : 'translateY(20px)',
-        transition: 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
-      }}>
-        {/* Animated Logo */}
+      <div style={styles.content}>
+        {/* Logo */}
         <div style={styles.logoContainer}>
           <div style={styles.logoOuter}>
             <div style={styles.logoMiddle}>
@@ -44,10 +22,6 @@ const SplashScreen = () => {
                   <path
                     d="M30 10 L37 25 L52 25 L41 35 L45 50 L30 40 L15 50 L19 35 L8 25 L23 25 Z"
                     fill="white"
-                    style={{
-                      animation: 'starPulse 2s ease-in-out infinite',
-                      transformOrigin: 'center',
-                    }}
                   />
                 </svg>
               </div>
@@ -59,11 +33,22 @@ const SplashScreen = () => {
         <h1 style={styles.title}>Savora</h1>
         <p style={styles.subtitle}>Decide Together, Dine Better</p>
 
-        {/* Loading dots */}
-        <div style={styles.loadingContainer}>
-          <div style={{ ...styles.dot, animationDelay: '0s' }}></div>
-          <div style={{ ...styles.dot, animationDelay: '0.2s' }}></div>
-          <div style={{ ...styles.dot, animationDelay: '0.4s' }}></div>
+        {/* CTA Buttons */}
+        <div style={styles.buttonContainer}>
+          <button
+            onClick={() => navigate('/onboarding')}
+            style={styles.signUpButton}
+            className="landing-button"
+          >
+            Sign Up
+          </button>
+          <button
+            onClick={() => navigate('/signin')}
+            style={styles.signInButton}
+            className="landing-button"
+          >
+            Sign In
+          </button>
         </div>
       </div>
     </div>
@@ -119,6 +104,7 @@ const styles = {
     alignItems: 'center',
     gap: '24px',
     zIndex: 1,
+    padding: '0 32px',
   },
   logoContainer: {
     marginBottom: '16px',
@@ -133,7 +119,6 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-    animation: 'logoFloat 3s ease-in-out infinite',
     border: '1px solid rgba(255, 255, 255, 0.2)',
   },
   logoMiddle: {
@@ -162,7 +147,6 @@ const styles = {
     margin: '0',
     letterSpacing: '-1.5px',
     textShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
-    animation: 'titleSlideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s backwards',
   },
   subtitle: {
     fontSize: '16px',
@@ -170,73 +154,43 @@ const styles = {
     margin: '0',
     fontWeight: '500',
     letterSpacing: '0.5px',
-    animation: 'titleSlideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s backwards',
+    marginBottom: '16px',
   },
-  loadingContainer: {
+  buttonContainer: {
     display: 'flex',
-    gap: '8px',
-    marginTop: '40px',
+    flexDirection: 'column',
+    gap: '16px',
+    width: '100%',
+    maxWidth: '300px',
+    marginTop: '24px',
   },
-  dot: {
-    width: '10px',
-    height: '10px',
-    borderRadius: '50%',
+  signUpButton: {
+    width: '100%',
+    padding: '16px 32px',
     background: 'white',
-    animation: 'dotPulse 1.5s ease-in-out infinite',
-    boxShadow: '0 2px 8px rgba(255, 255, 255, 0.5)',
+    color: '#667eea',
+    border: 'none',
+    borderRadius: '14px',
+    fontSize: '17px',
+    fontWeight: '700',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+    letterSpacing: '0.3px',
+  },
+  signInButton: {
+    width: '100%',
+    padding: '16px 32px',
+    background: 'transparent',
+    color: 'white',
+    border: '2px solid white',
+    borderRadius: '14px',
+    fontSize: '17px',
+    fontWeight: '700',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    letterSpacing: '0.3px',
   },
 };
 
-// Add keyframe animations to the stylesheet
-const styleSheet = document.styleSheets[0];
-
-if (!document.querySelector('[data-splash-animations]')) {
-  const style = document.createElement('style');
-  style.setAttribute('data-splash-animations', 'true');
-  style.textContent = `
-    @keyframes logoFloat {
-      0%, 100% {
-        transform: translateY(0px) scale(1);
-      }
-      50% {
-        transform: translateY(-15px) scale(1.05);
-      }
-    }
-
-    @keyframes starPulse {
-      0%, 100% {
-        transform: scale(1) rotate(0deg);
-        opacity: 1;
-      }
-      50% {
-        transform: scale(1.2) rotate(180deg);
-        opacity: 0.8;
-      }
-    }
-
-    @keyframes titleSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes dotPulse {
-      0%, 100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-      50% {
-        transform: scale(1.5);
-        opacity: 0.5;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-}
-
-export default SplashScreen;
+export default Landing;

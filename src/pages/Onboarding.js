@@ -18,6 +18,10 @@ const Onboarding = () => {
   const [emailError, setEmailError] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [budgetRange, setBudgetRange] = useState(2); // 0-3 index for budget ranges
   const [distanceRange, setDistanceRange] = useState(2); // 0-3 index for distance ranges
   const [selectedCuisines, setSelectedCuisines] = useState([]);
@@ -51,6 +55,34 @@ const Onboarding = () => {
     { name: 'Korean', emoji: '🍲' },
     { name: 'Mediterranean', emoji: '🥙' },
     { name: 'French', emoji: '🥖' },
+    { name: 'Greek', emoji: '🥗' },
+    { name: 'Vietnamese', emoji: '🍲' },
+    { name: 'Spanish', emoji: '🥘' },
+    { name: 'Turkish', emoji: '🥙' },
+    { name: 'Lebanese', emoji: '🧆' },
+    { name: 'Brazilian', emoji: '🥩' },
+    { name: 'Ethiopian', emoji: '🫓' },
+    { name: 'Middle Eastern', emoji: '🍢' },
+    { name: 'Caribbean', emoji: '🍗' },
+    { name: 'British', emoji: '🫖' },
+    { name: 'German', emoji: '🥨' },
+    { name: 'Moroccan', emoji: '🍲' },
+    { name: 'Peruvian', emoji: '🌶️' },
+    { name: 'Filipino', emoji: '🍚' },
+    { name: 'Indonesian', emoji: '🍛' },
+    { name: 'Malaysian', emoji: '🍜' },
+    { name: 'Singaporean', emoji: '🦐' },
+    { name: 'Pakistani', emoji: '🍛' },
+    { name: 'African', emoji: '🍲' },
+    { name: 'Fusion', emoji: '🌟' },
+    { name: 'Seafood', emoji: '🦞' },
+    { name: 'BBQ', emoji: '🍖' },
+    { name: 'Pizza', emoji: '🍕' },
+    { name: 'Sushi', emoji: '🍱' },
+    { name: 'Steakhouse', emoji: '🥩' },
+    { name: 'Street Food', emoji: '🌭' },
+    { name: 'Cafe', emoji: '☕' },
+    { name: 'Bakery', emoji: '🥐' },
   ];
 
   const restrictions = [
@@ -135,6 +167,15 @@ const Onboarding = () => {
            digitsOnly.length <= countryInfo.maxLength;
   };
 
+  // Password validation (minimum 8 characters, at least 1 uppercase, 1 lowercase, 1 number)
+  const validatePassword = (pwd) => {
+    if (pwd.length < 8) return false;
+    const hasUpperCase = /[A-Z]/.test(pwd);
+    const hasLowerCase = /[a-z]/.test(pwd);
+    const hasNumber = /[0-9]/.test(pwd);
+    return hasUpperCase && hasLowerCase && hasNumber;
+  };
+
   const handleDobChange = (e) => {
     const value = e.target.value;
     setDob(value);
@@ -187,6 +228,32 @@ const Onboarding = () => {
     setIsCountryDropdownOpen(!isCountryDropdownOpen);
   };
 
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    if (value && !validatePassword(value)) {
+      setPasswordError('Password must be at least 8 characters with uppercase, lowercase, and number');
+    } else {
+      setPasswordError('');
+    }
+    // Revalidate confirm password if it's already filled
+    if (confirmPassword && value !== confirmPassword) {
+      setConfirmPasswordError('Passwords do not match');
+    } else {
+      setConfirmPasswordError('');
+    }
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    const value = e.target.value;
+    setConfirmPassword(value);
+    if (value && value !== password) {
+      setConfirmPasswordError('Passwords do not match');
+    } else {
+      setConfirmPasswordError('');
+    }
+  };
+
   const toggleCuisine = (cuisineName) => {
     if (selectedCuisines.includes(cuisineName)) {
       setSelectedCuisines(selectedCuisines.filter(c => c !== cuisineName));
@@ -204,7 +271,7 @@ const Onboarding = () => {
   };
 
   const handleNext = () => {
-    if (step === 1 && name && dob && !dobError && validateDob(dob) && email && !emailError && validateEmail(email) && (!phone || validatePhone(phone, phoneCountry))) {
+    if (step === 1 && name && dob && !dobError && validateDob(dob) && email && !emailError && validateEmail(email) && (!phone || validatePhone(phone, phoneCountry)) && password && !passwordError && validatePassword(password) && confirmPassword && !confirmPasswordError && password === confirmPassword) {
       setStep(2);
     } else if (step === 2) {
       setStep(3);
@@ -225,6 +292,7 @@ const Onboarding = () => {
       email,
       phone: fullPhone,
       phoneCountry,
+      password, // Store password (in production, this should be hashed)
       createdAt: new Date().toISOString(),
     };
 
@@ -377,6 +445,42 @@ const Onboarding = () => {
                 </div>
                 {phoneError && <span style={styles.errorText}>{phoneError}</span>}
               </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Password</label>
+                <input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={handlePasswordChange}
+                  style={{
+                    ...styles.input,
+                    borderColor: passwordError ? theme.colors.error : theme.colors.border.medium,
+                  }}
+                />
+                {passwordError && <span style={styles.errorText}>{passwordError}</span>}
+                {!passwordError && password && (
+                  <span style={styles.successText}>Password is strong</span>
+                )}
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Confirm Password</label>
+                <input
+                  type="password"
+                  placeholder="Re-enter your password"
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  style={{
+                    ...styles.input,
+                    borderColor: confirmPasswordError ? theme.colors.error : theme.colors.border.medium,
+                  }}
+                />
+                {confirmPasswordError && <span style={styles.errorText}>{confirmPasswordError}</span>}
+                {!confirmPasswordError && confirmPassword && password === confirmPassword && (
+                  <span style={styles.successText}>Passwords match</span>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -443,45 +547,28 @@ const Onboarding = () => {
             <h2 style={styles.title}>Favorite Cuisines</h2>
             <p style={styles.subtitle}>Select all that you enjoy</p>
 
-            <div style={styles.cuisineScrollContainer}>
-              <div style={styles.cuisineRow}>
-                {cuisines.slice(0, 5).map((cuisine) => (
+            <div style={styles.cuisineGridContainer}>
+              {cuisines.map((cuisine, index) => (
+                <div
+                  key={cuisine.name}
+                  onClick={() => toggleCuisine(cuisine.name)}
+                  className="cuisine-item-hint"
+                  style={{
+                    ...styles.cuisineGridItem,
+                    animationDelay: `${0.5 + index * 0.08}s`,
+                  }}
+                >
                   <div
-                    key={cuisine.name}
-                    onClick={() => toggleCuisine(cuisine.name)}
-                    style={styles.cuisineItem}
+                    style={{
+                      ...styles.cuisineCircle,
+                      ...(selectedCuisines.includes(cuisine.name) ? styles.cuisineCircleSelected : {}),
+                    }}
                   >
-                    <div
-                      style={{
-                        ...styles.cuisineCircle,
-                        ...(selectedCuisines.includes(cuisine.name) ? styles.cuisineCircleSelected : {}),
-                      }}
-                    >
-                      <span style={styles.cuisineEmoji}>{cuisine.emoji}</span>
-                    </div>
-                    <span style={styles.cuisineName}>{cuisine.name}</span>
+                    <span style={styles.cuisineEmoji}>{cuisine.emoji}</span>
                   </div>
-                ))}
-              </div>
-              <div style={styles.cuisineRow}>
-                {cuisines.slice(5, 10).map((cuisine) => (
-                  <div
-                    key={cuisine.name}
-                    onClick={() => toggleCuisine(cuisine.name)}
-                    style={styles.cuisineItem}
-                  >
-                    <div
-                      style={{
-                        ...styles.cuisineCircle,
-                        ...(selectedCuisines.includes(cuisine.name) ? styles.cuisineCircleSelected : {}),
-                      }}
-                    >
-                      <span style={styles.cuisineEmoji}>{cuisine.emoji}</span>
-                    </div>
-                    <span style={styles.cuisineName}>{cuisine.name}</span>
-                  </div>
-                ))}
-              </div>
+                  <span style={styles.cuisineName}>{cuisine.name}</span>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -534,9 +621,9 @@ const Onboarding = () => {
             onClick={handleNext}
             style={{
               ...styles.nextButton,
-              opacity: (step === 1 && (!name || !dob || !email || emailError || dobError || phoneError)) ? 0.5 : 1,
+              opacity: (step === 1 && (!name || !dob || !email || emailError || dobError || phoneError || !password || !confirmPassword || passwordError || confirmPasswordError || password !== confirmPassword)) ? 0.5 : 1,
             }}
-            disabled={step === 1 && (!name || !dob || !email || emailError || dobError || phoneError)}
+            disabled={step === 1 && (!name || !dob || !email || emailError || dobError || phoneError || !password || !confirmPassword || passwordError || confirmPasswordError || password !== confirmPassword)}
           >
             Continue
           </button>
@@ -763,6 +850,12 @@ const styles = {
     color: theme.colors.error,
     marginTop: '4px',
   },
+  successText: {
+    fontSize: '13px',
+    color: '#10B981',
+    marginTop: '4px',
+    fontWeight: '500',
+  },
   ageDisplay: {
     fontSize: '13px',
     color: theme.colors.primary.main,
@@ -846,11 +939,76 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.2s ease',
   },
+  cuisineGridContainer: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '16px',
+    padding: '20px 16px',
+    background: 'linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%)',
+    borderRadius: '16px',
+    border: '2px dashed #D1D5DB',
+    boxShadow: 'inset 0 2px 8px rgba(0, 0, 0, 0.05)',
+    marginTop: '8px',
+  },
+  cuisineGridItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px',
+    cursor: 'pointer',
+    padding: '8px',
+    borderRadius: '12px',
+    transition: 'all 0.2s ease',
+  },
+  scrollWrapper: {
+    position: 'relative',
+    marginTop: '8px',
+  },
   cuisineScrollContainer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
-    marginTop: '8px',
+    gap: '12px',
+    padding: '20px 16px',
+    background: 'linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%)',
+    borderRadius: '16px',
+    border: '2px dashed #D1D5DB',
+    boxShadow: 'inset 0 2px 8px rgba(0, 0, 0, 0.05)',
+    overflowX: 'hidden',
+  },
+  cuisineRowScrollable: {
+    display: 'flex',
+    gap: '12px',
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    scrollSnapType: 'x mandatory',
+    WebkitOverflowScrolling: 'touch',
+    paddingBottom: '8px',
+  },
+  scrollHint: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '6px',
+    marginTop: '12px',
+    padding: '8px',
+    background: '#EFF6FF',
+    borderRadius: '10px',
+    border: '1px solid #BFDBFE',
+  },
+  scrollHintText: {
+    fontSize: '13px',
+    color: theme.colors.primary.main,
+    fontWeight: '600',
+  },
+  scrollArrow: {
+    fontSize: '14px',
+    color: theme.colors.primary.main,
+    animation: 'bounce 2s infinite',
+  },
+  scrollArrowHorizontal: {
+    fontSize: '14px',
+    color: theme.colors.primary.main,
+    animation: 'slideHorizontal 2s infinite',
   },
   cuisineRow: {
     display: 'flex',
@@ -862,8 +1020,10 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     gap: '8px',
-    flex: 1,
+    minWidth: '85px',
+    flexShrink: 0,
     cursor: 'pointer',
+    scrollSnapAlign: 'start',
   },
   cuisineCircle: {
     width: '70px',

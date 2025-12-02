@@ -266,7 +266,7 @@ const SessionWaiting = () => {
       {/* Header with Session Code */}
       <div style={styles.header}>
         <div style={styles.titleRow}>
-          <button onClick={() => navigate(-1)} style={styles.backButton}>
+          <button onClick={() => navigate('/decision')} style={styles.backButton}>
             <IoArrowBack size={24} color={theme.colors.text.primary} />
           </button>
           <h1 style={styles.mainTitle}>{heading}</h1>

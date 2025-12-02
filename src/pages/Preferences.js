@@ -11,22 +11,29 @@ const Preferences = () => {
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const [dietary, setDietary] = useState([]);
-  const [budget, setBudget] = useState(userPrefs?.budget || 'moderate');
-  const [distance, setDistance] = useState(userPrefs?.distance || 3);
-  const [selectedCuisines, setSelectedCuisines] = useState(userPrefs?.cuisines || []);
+  const [budgetRange, setBudgetRange] = useState(2); // 0-3 index for budget ranges
+  const [distanceRange, setDistanceRange] = useState(2); // 0-3 index for distance ranges
+  const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [adventureLevel, setAdventureLevel] = useState('balanced');
   const [currency] = useState(userPrefs?.currency || 'AED');
   const [distanceUnit] = useState(userPrefs?.distanceUnit || 'km');
-  const [showBudgetMenu, setShowBudgetMenu] = useState(false);
-  const budgetDropdownRef = useRef(null);
 
   const dietaryOptions = ['Vegetarian', 'Vegan', 'Gluten-Free', 'Halal', 'Kosher', 'Dairy-Free'];
 
-  const budgetOptions = [
-    { value: 'budget', label: 'Budget Friendly', range: '50-100 AED' },
-    { value: 'moderate', label: 'Moderate', range: '100-250 AED' },
-    { value: 'upscale', label: 'Upscale', range: '250-500 AED' },
-    { value: 'luxury', label: 'Luxury', range: '500+ AED' },
+  // Budget ranges
+  const budgetRanges = [
+    { label: 'Less than 30 AED', value: '< 30', minValue: 0, maxValue: 30 },
+    { label: '30-60 AED', value: '30-60', minValue: 30, maxValue: 60 },
+    { label: '60-100 AED', value: '60-100', minValue: 60, maxValue: 100 },
+    { label: 'Above 100 AED', value: '> 100', minValue: 100, maxValue: 500 },
+  ];
+
+  // Distance ranges
+  const distanceRanges = [
+    { label: 'Less than 2 km', value: '< 2 km', minValue: 0, maxValue: 2 },
+    { label: '2-5 km', value: '2-5 km', minValue: 2, maxValue: 5 },
+    { label: '5-10 km', value: '5-10 km', minValue: 5, maxValue: 10 },
+    { label: 'Above 10 km', value: '> 10 km', minValue: 10, maxValue: 25 },
   ];
 
   const cuisines = [
@@ -42,22 +49,40 @@ const Preferences = () => {
     { name: 'French', emoji: '🥖' },
   ];
 
-  // Close dropdown when clicking outside
+  // Load user preferences from onboarding on mount
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (budgetDropdownRef.current && !budgetDropdownRef.current.contains(event.target)) {
-        setShowBudgetMenu(false);
+    if (userPrefs) {
+      // Load cuisines
+      if (userPrefs.cuisines && Array.isArray(userPrefs.cuisines)) {
+        setSelectedCuisines(userPrefs.cuisines);
       }
-    };
 
-    if (showBudgetMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
+      // Load dietary restrictions
+      if (userPrefs.dietaryRestrictions && Array.isArray(userPrefs.dietaryRestrictions)) {
+        setDietary(userPrefs.dietaryRestrictions);
+      }
+
+      // Load budget range - find the matching index
+      if (userPrefs.budgetRange) {
+        const budgetIndex = budgetRanges.findIndex(
+          range => range.value === userPrefs.budgetRange.value
+        );
+        if (budgetIndex !== -1) {
+          setBudgetRange(budgetIndex);
+        }
+      }
+
+      // Load distance range - find the matching index
+      if (userPrefs.distanceRange) {
+        const distanceIndex = distanceRanges.findIndex(
+          range => range.value === userPrefs.distanceRange.value
+        );
+        if (distanceIndex !== -1) {
+          setDistanceRange(distanceIndex);
+        }
+      }
     }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showBudgetMenu]);
+  }, [userPrefs]);
 
   const toggleDietary = (option) => {
     if (dietary.includes(option)) {
@@ -75,12 +100,7 @@ const Preferences = () => {
     }
   };
 
-  const handleBudgetSelect = (value) => {
-    setBudget(value);
-    setShowBudgetMenu(false);
-  };
-
-  // Monitor session for all participants' submissions
+  // Monitor session for participants' submissions
   useEffect(() => {
     if (!sessionId || !user) return;
 
@@ -89,11 +109,12 @@ const Preferences = () => {
 
     const participants = Array.isArray(session.participants) ? session.participants : [];
 
-    // Check if all participants have submitted
-    const allSubmitted = participants.every(p => p.hasSubmittedPreferences === true);
+    // Check if at least 2 participants have submitted
+    const submittedCount = participants.filter(p => p.hasSubmittedPreferences === true).length;
+    const enoughSubmitted = submittedCount >= 2;
 
-    // If all submitted and user has submitted, navigate to results
-    if (allSubmitted && hasSubmitted) {
+    // If enough submitted and user has submitted, navigate to results
+    if (enoughSubmitted && hasSubmitted) {
       navigate(`/result/${sessionId}`);
     }
   }, [sessions, sessionId, user, hasSubmitted, navigate]);
@@ -114,8 +135,8 @@ const Preferences = () => {
           hasSubmittedPreferences: true,
           preferences: {
             dietary,
-            budget,
-            distance,
+            budgetRange: budgetRanges[budgetRange],
+            distanceRange: distanceRanges[distanceRange],
             cuisines: selectedCuisines,
             adventureLevel,
             currency,
@@ -126,13 +147,14 @@ const Preferences = () => {
       return p;
     });
 
-    // Check if all participants have submitted
-    const allSubmitted = updatedParticipants.every(p => p.hasSubmittedPreferences === true);
+    // Check if at least 2 participants have submitted
+    const submittedCount = updatedParticipants.filter(p => p.hasSubmittedPreferences === true).length;
+    const enoughSubmitted = submittedCount >= 2;
 
     updateSession(sessionId, {
       participants: updatedParticipants,
-      stage: allSubmitted ? 'result' : 'preferences',
-      status: allSubmitted ? 'completed' : 'active',
+      stage: enoughSubmitted ? 'result' : 'preferences',
+      status: enoughSubmitted ? 'completed' : 'active',
     });
 
     setHasSubmitted(true);
@@ -210,7 +232,7 @@ const Preferences = () => {
       {/* Header */}
       <div style={styles.header}>
         <div style={styles.titleRow}>
-          <button onClick={() => navigate(-1)} style={styles.backButton}>
+          <button onClick={() => navigate(`/session/waiting?sessionId=${sessionId}`)} style={styles.backButton}>
             <IoArrowBack size={24} color={theme.colors.text.primary} />
           </button>
           <h1 style={styles.mainTitle}>Set Your Preferences</h1>
@@ -240,75 +262,56 @@ const Preferences = () => {
           </div>
         </div>
 
-        {/* Budget Dropdown */}
+        {/* Budget Range */}
         <div style={styles.section}>
-          <label style={styles.label}>Budget</label>
-          <div ref={budgetDropdownRef} style={styles.dropdownContainer}>
-            <button
-              type="button"
-              onClick={() => setShowBudgetMenu(!showBudgetMenu)}
-              onMouseDown={(e) => e.preventDefault()}
-              style={styles.customDropdownButton}
-            >
-              <span style={styles.dropdownButtonText}>
-                {budgetOptions.find(opt => opt.value === budget)?.label} ({budgetOptions.find(opt => opt.value === budget)?.range})
-              </span>
-              <IoChevronDown
-                size={20}
-                color={theme.colors.text.secondary}
+          <label style={styles.label}>Budget Range</label>
+          <div style={styles.segmentedControl}>
+            {budgetRanges.map((range, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setBudgetRange(index)}
+                onMouseDown={(e) => e.preventDefault()}
                 style={{
-                  transform: showBudgetMenu ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.2s ease',
+                  ...styles.segmentButton,
+                  background: budgetRange === index ? theme.colors.primary.main : 'white',
+                  color: budgetRange === index ? 'white' : theme.colors.text.primary,
+                  borderColor: budgetRange === index ? theme.colors.primary.main : theme.colors.border.medium,
                 }}
-              />
-            </button>
-            {showBudgetMenu && (
-              <div style={styles.dropdownMenu}>
-                {budgetOptions.map(option => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => handleBudgetSelect(option.value)}
-                    onMouseDown={(e) => e.preventDefault()}
-                    style={{
-                      ...styles.dropdownMenuItem,
-                      background: budget === option.value ? 'rgba(59, 130, 246, 0.05)' : 'transparent',
-                    }}
-                  >
-                    <span style={{
-                      ...styles.dropdownMenuItemText,
-                      fontWeight: budget === option.value ? '600' : '400',
-                      color: budget === option.value ? theme.colors.primary.main : theme.colors.text.primary,
-                    }}>
-                      {option.label}
-                    </span>
-                    <span style={styles.dropdownMenuItemSubtext}>
-                      {option.range}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
+              >
+                {range.value}
+              </button>
+            ))}
+          </div>
+          <div style={styles.rangeLabel}>
+            {budgetRanges[budgetRange].label}
           </div>
         </div>
 
-        {/* Distance Slider */}
+        {/* Distance Range */}
         <div style={styles.section}>
-          <label style={styles.label}>
-            Maximum Distance: {distance} {distanceUnit}
-          </label>
-          <input
-            type="range"
-            min="1"
-            max="25"
-            step="1"
-            value={distance}
-            onChange={(e) => setDistance(parseInt(e.target.value))}
-            style={{
-              ...styles.slider,
-              background: `linear-gradient(to right, ${theme.colors.primary.main} 0%, ${theme.colors.primary.main} ${(distance / 25) * 100}%, #E5E7EB ${(distance / 25) * 100}%, #E5E7EB 100%)`,
-            }}
-          />
+          <label style={styles.label}>Distance Range</label>
+          <div style={styles.segmentedControl}>
+            {distanceRanges.map((range, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setDistanceRange(index)}
+                onMouseDown={(e) => e.preventDefault()}
+                style={{
+                  ...styles.segmentButton,
+                  background: distanceRange === index ? theme.colors.primary.main : 'white',
+                  color: distanceRange === index ? 'white' : theme.colors.text.primary,
+                  borderColor: distanceRange === index ? theme.colors.primary.main : theme.colors.border.medium,
+                }}
+              >
+                {range.value}
+              </button>
+            ))}
+          </div>
+          <div style={styles.rangeLabel}>
+            {distanceRanges[distanceRange].label}
+          </div>
         </div>
 
         {/* Cuisine Types - Circular */}
@@ -829,6 +832,33 @@ const styles = {
     userSelect: 'none',
     WebkitUserSelect: 'none',
     MozUserSelect: 'none',
+  },
+  segmentedControl: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '8px',
+    marginBottom: '8px',
+  },
+  segmentButton: {
+    padding: '10px 8px',
+    fontSize: '12px',
+    fontWeight: '600',
+    border: '1.5px solid',
+    borderRadius: '10px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    textAlign: 'center',
+    outline: 'none',
+    WebkitTapHighlightColor: 'transparent',
+    userSelect: 'none',
+    WebkitUserSelect: 'none',
+    MozUserSelect: 'none',
+  },
+  rangeLabel: {
+    fontSize: '13px',
+    color: theme.colors.text.secondary,
+    textAlign: 'center',
+    marginTop: '4px',
   },
 };
 

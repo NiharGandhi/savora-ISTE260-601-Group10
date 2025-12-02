@@ -337,7 +337,7 @@ const Home = () => {
                 <div key={restaurant.id} style={styles.restaurantCard} onClick={() => navigate('/explore')}>
                   {/* Match Badge */}
                   <div style={styles.matchBadge}>
-                    {restaurant.match}%
+                    {restaurant.match}% match
                   </div>
 
                   <div style={styles.restaurantContent}>
