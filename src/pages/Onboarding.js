@@ -18,15 +18,39 @@ const Onboarding = () => {
   const [emailError, setEmailError] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
-  const [budget, setBudget] = useState(250); // AED value
-  const [distance, setDistance] = useState(3); // km value
+  const [budgetRange, setBudgetRange] = useState(2); // 0-3 index for budget ranges
+  const [distanceRange, setDistanceRange] = useState(2); // 0-3 index for distance ranges
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [dietaryRestrictions, setDietaryRestrictions] = useState([]);
   const [showDobTooltip, setShowDobTooltip] = useState(false);
 
+  // Budget ranges
+  const budgetRanges = [
+    { label: 'Less than 30 AED', value: '< 30', minValue: 0, maxValue: 30 },
+    { label: '30-60 AED', value: '30-60', minValue: 30, maxValue: 60 },
+    { label: '60-100 AED', value: '60-100', minValue: 60, maxValue: 100 },
+    { label: 'Above 100 AED', value: '> 100', minValue: 100, maxValue: 500 },
+  ];
+
+  // Distance ranges
+  const distanceRanges = [
+    { label: 'Less than 2 km', value: '< 2 km', minValue: 0, maxValue: 2 },
+    { label: '2-5 km', value: '2-5 km', minValue: 2, maxValue: 5 },
+    { label: '5-10 km', value: '5-10 km', minValue: 5, maxValue: 10 },
+    { label: 'Above 10 km', value: '> 10 km', minValue: 10, maxValue: 25 },
+  ];
+
   const cuisines = [
-    'Italian', 'Chinese', 'Japanese', 'Mexican', 'Indian',
-    'Thai', 'American', 'Korean', 'Mediterranean', 'French'
+    { name: 'Italian', emoji: '🍝' },
+    { name: 'Chinese', emoji: '🥡' },
+    { name: 'Japanese', emoji: '🍣' },
+    { name: 'Mexican', emoji: '🌮' },
+    { name: 'Indian', emoji: '🍛' },
+    { name: 'Thai', emoji: '🍜' },
+    { name: 'American', emoji: '🍔' },
+    { name: 'Korean', emoji: '🍲' },
+    { name: 'Mediterranean', emoji: '🥙' },
+    { name: 'French', emoji: '🥖' },
   ];
 
   const restrictions = [
@@ -163,11 +187,11 @@ const Onboarding = () => {
     setIsCountryDropdownOpen(!isCountryDropdownOpen);
   };
 
-  const toggleCuisine = (cuisine) => {
-    if (selectedCuisines.includes(cuisine)) {
-      setSelectedCuisines(selectedCuisines.filter(c => c !== cuisine));
+  const toggleCuisine = (cuisineName) => {
+    if (selectedCuisines.includes(cuisineName)) {
+      setSelectedCuisines(selectedCuisines.filter(c => c !== cuisineName));
     } else {
-      setSelectedCuisines([...selectedCuisines, cuisine]);
+      setSelectedCuisines([...selectedCuisines, cuisineName]);
     }
   };
 
@@ -205,8 +229,8 @@ const Onboarding = () => {
     };
 
     const preferences = {
-      budget,
-      distance,
+      budgetRange: budgetRanges[budgetRange],
+      distanceRange: distanceRanges[distanceRange],
       cuisines: selectedCuisines,
       dietaryRestrictions,
       currency: 'AED',
@@ -364,46 +388,50 @@ const Onboarding = () => {
 
             <div style={styles.form}>
               <div style={styles.inputGroup}>
-                <label style={styles.label}>
-                  Budget Range: {budget} AED
-                </label>
-                <div style={styles.sliderContainer}>
-                  <span style={styles.sliderLabel}>50 AED</span>
-                  <input
-                    type="range"
-                    min="50"
-                    max="500"
-                    step="10"
-                    value={budget}
-                    onChange={(e) => setBudget(parseInt(e.target.value))}
-                    style={styles.slider}
-                  />
-                  <span style={styles.sliderLabel}>500 AED</span>
+                <label style={styles.label}>Budget Range</label>
+                <div style={styles.segmentedControl}>
+                  {budgetRanges.map((range, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setBudgetRange(index)}
+                      style={{
+                        ...styles.segmentButton,
+                        background: budgetRange === index ? theme.colors.primary.main : 'white',
+                        color: budgetRange === index ? 'white' : theme.colors.text.primary,
+                        borderColor: budgetRange === index ? theme.colors.primary.main : theme.colors.border.medium,
+                      }}
+                    >
+                      {range.value}
+                    </button>
+                  ))}
                 </div>
-                <div style={styles.budgetDescription}>
-                  {budget < 100 && '💰 Budget-friendly'}
-                  {budget >= 100 && budget < 200 && '💵 Moderate'}
-                  {budget >= 200 && budget < 350 && '💸 Upscale'}
-                  {budget >= 350 && '✨ Fine dining'}
+                <div style={styles.rangeLabel}>
+                  {budgetRanges[budgetRange].label}
                 </div>
               </div>
 
               <div style={styles.inputGroup}>
-                <label style={styles.label}>
-                  Maximum Distance: {distance} km
-                </label>
-                <div style={styles.sliderContainer}>
-                  <span style={styles.sliderLabel}>1 km</span>
-                  <input
-                    type="range"
-                    min="1"
-                    max="25"
-                    step="1"
-                    value={distance}
-                    onChange={(e) => setDistance(parseInt(e.target.value))}
-                    style={styles.slider}
-                  />
-                  <span style={styles.sliderLabel}>25 km</span>
+                <label style={styles.label}>Distance Range</label>
+                <div style={styles.segmentedControl}>
+                  {distanceRanges.map((range, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setDistanceRange(index)}
+                      style={{
+                        ...styles.segmentButton,
+                        background: distanceRange === index ? theme.colors.primary.main : 'white',
+                        color: distanceRange === index ? 'white' : theme.colors.text.primary,
+                        borderColor: distanceRange === index ? theme.colors.primary.main : theme.colors.border.medium,
+                      }}
+                    >
+                      {range.value}
+                    </button>
+                  ))}
+                </div>
+                <div style={styles.rangeLabel}>
+                  {distanceRanges[distanceRange].label}
                 </div>
               </div>
             </div>
@@ -415,29 +443,45 @@ const Onboarding = () => {
             <h2 style={styles.title}>Favorite Cuisines</h2>
             <p style={styles.subtitle}>Select all that you enjoy</p>
 
-            <div style={styles.cuisineGrid}>
-              {cuisines.map((cuisine) => (
-                <button
-                  key={cuisine}
-                  onClick={() => toggleCuisine(cuisine)}
-                  style={{
-                    ...styles.cuisineButton,
-                    background: selectedCuisines.includes(cuisine)
-                      ? theme.colors.primary.main
-                      : 'white',
-                    color: selectedCuisines.includes(cuisine)
-                      ? 'white'
-                      : theme.colors.text.primary,
-                    border: `1px solid ${
-                      selectedCuisines.includes(cuisine)
-                        ? theme.colors.primary.main
-                        : theme.colors.border.medium
-                    }`,
-                  }}
-                >
-                  {cuisine}
-                </button>
-              ))}
+            <div style={styles.cuisineScrollContainer}>
+              <div style={styles.cuisineRow}>
+                {cuisines.slice(0, 5).map((cuisine) => (
+                  <div
+                    key={cuisine.name}
+                    onClick={() => toggleCuisine(cuisine.name)}
+                    style={styles.cuisineItem}
+                  >
+                    <div
+                      style={{
+                        ...styles.cuisineCircle,
+                        ...(selectedCuisines.includes(cuisine.name) ? styles.cuisineCircleSelected : {}),
+                      }}
+                    >
+                      <span style={styles.cuisineEmoji}>{cuisine.emoji}</span>
+                    </div>
+                    <span style={styles.cuisineName}>{cuisine.name}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={styles.cuisineRow}>
+                {cuisines.slice(5, 10).map((cuisine) => (
+                  <div
+                    key={cuisine.name}
+                    onClick={() => toggleCuisine(cuisine.name)}
+                    style={styles.cuisineItem}
+                  >
+                    <div
+                      style={{
+                        ...styles.cuisineCircle,
+                        ...(selectedCuisines.includes(cuisine.name) ? styles.cuisineCircleSelected : {}),
+                      }}
+                    >
+                      <span style={styles.cuisineEmoji}>{cuisine.emoji}</span>
+                    </div>
+                    <span style={styles.cuisineName}>{cuisine.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -725,6 +769,30 @@ const styles = {
     marginTop: '4px',
     fontWeight: '500',
   },
+  segmentedControl: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '8px',
+    marginTop: '8px',
+  },
+  segmentButton: {
+    padding: '12px 8px',
+    border: '2px solid',
+    borderRadius: '10px',
+    fontSize: '13px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    textAlign: 'center',
+    whiteSpace: 'nowrap',
+  },
+  rangeLabel: {
+    fontSize: '14px',
+    color: theme.colors.text.secondary,
+    marginTop: '10px',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
   sliderContainer: {
     display: 'flex',
     alignItems: 'center',
@@ -742,7 +810,6 @@ const styles = {
     height: '6px',
     borderRadius: '3px',
     outline: 'none',
-    background: `linear-gradient(to right, ${theme.colors.primary.main} 0%, ${theme.colors.primary.main} 50%, ${theme.colors.border.medium} 50%, ${theme.colors.border.medium} 100%)`,
     WebkitAppearance: 'none',
     appearance: 'none',
   },
@@ -778,6 +845,50 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
+  },
+  cuisineScrollContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    marginTop: '8px',
+  },
+  cuisineRow: {
+    display: 'flex',
+    gap: '12px',
+    justifyContent: 'space-between',
+  },
+  cuisineItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px',
+    flex: 1,
+    cursor: 'pointer',
+  },
+  cuisineCircle: {
+    width: '70px',
+    height: '70px',
+    borderRadius: '50%',
+    background: '#F9FAFB',
+    border: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.2s ease',
+  },
+  cuisineCircleSelected: {
+    background: 'white',
+    border: `3px solid ${theme.colors.primary.main}`,
+    boxShadow: `0 0 0 3px rgba(59, 130, 246, 0.1)`,
+  },
+  cuisineEmoji: {
+    fontSize: '32px',
+  },
+  cuisineName: {
+    fontSize: '13px',
+    fontWeight: '500',
+    color: theme.colors.text.primary,
+    textAlign: 'center',
   },
   footer: {
     padding: '16px 20px calc(16px + env(safe-area-inset-bottom))',

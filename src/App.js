@@ -40,8 +40,8 @@ const fakeUsers = {
     phone: '+971 50 123 4567',
     phoneCountry: 'AE',
     preferences: {
-      budget: 250,
-      distance: 8,
+      budgetRange: { label: 'Above 100 AED', value: '> 100', minValue: 100, maxValue: 500 },
+      distanceRange: { label: '5-10 km', value: '5-10', minValue: 5, maxValue: 10 },
       cuisines: ['Indian', 'Mediterranean', 'Chinese'],
       dietaryRestrictions: ['Vegetarian'],
       currency: 'AED',
@@ -55,8 +55,8 @@ const fakeUsers = {
     phone: '+1 555 234 5678',
     phoneCountry: 'US',
     preferences: {
-      budget: 200,
-      distance: 5,
+      budgetRange: { label: '60-100 AED', value: '60-100', minValue: 60, maxValue: 100 },
+      distanceRange: { label: '2-5 km', value: '2-5', minValue: 2, maxValue: 5 },
       cuisines: ['Italian', 'Chinese'],
       dietaryRestrictions: [],
       currency: 'AED',
@@ -70,8 +70,8 @@ const fakeUsers = {
     phone: '+91 98765 43210',
     phoneCountry: 'IN',
     preferences: {
-      budget: 400,
-      distance: 10,
+      budgetRange: { label: 'Above 100 AED', value: '> 100', minValue: 100, maxValue: 500 },
+      distanceRange: { label: 'Above 10 km', value: '> 10', minValue: 10, maxValue: 25 },
       cuisines: ['Japanese', 'Mediterranean', 'Italian'],
       dietaryRestrictions: ['Vegan'],
       currency: 'AED',
