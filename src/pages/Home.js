@@ -235,12 +235,9 @@ const Home = () => {
 
           {/* Quick Actions */}
           <div style={styles.section}>
-            <button style={styles.fullWidthAction} onClick={() => navigate('/decision')}>
-              <div style={styles.actionLabel}>Start Decision</div>
-            </button>
             <div style={styles.actionsGrid}>
-              <button style={styles.secondaryAction} onClick={() => navigate('/create-group')}>
-                <div style={styles.actionLabel}>Create a New Group</div>
+              <button style={styles.fullWidthAction} onClick={() => navigate('/decision')}>
+                <div style={styles.actionLabel}>Start Decision</div>
               </button>
               <button style={styles.secondaryAction} onClick={() => navigate('/join')}>
                 <div style={styles.actionLabel}>Join using Code</div>
@@ -613,7 +610,6 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: '12px',
-    marginTop: '12px',
   },
   primaryAction: {
     background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
@@ -630,7 +626,6 @@ const styles = {
     transition: 'all 0.2s ease',
   },
   fullWidthAction: {
-    width: '100%',
     height: '56px',
     background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
     border: 'none',
@@ -644,7 +639,6 @@ const styles = {
     justifyContent: 'center',
     boxShadow: '0 6px 20px rgba(59, 130, 246, 0.3)',
     transition: 'all 0.2s ease',
-    marginBottom: '0',
     boxSizing: 'border-box',
   },
   secondaryAction: {

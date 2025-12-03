@@ -11,6 +11,7 @@ import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import Decision from './pages/Decision';
 import CreateGroup from './pages/CreateGroup';
+import GroupPlanning from './pages/GroupPlanning';
 import Groups from './pages/Groups';
 import GroupDetails from './pages/GroupDetails';
 import Preferences from './pages/Preferences';
@@ -133,6 +134,7 @@ const AppRoutes = ({ userId, useMemoryRouter = false }) => {
             <Route path="/home" element={<Home />} />
             <Route path="/decision" element={<Decision />} />
             <Route path="/create-group" element={<CreateGroup />} />
+            <Route path="/group-planning" element={<GroupPlanning />} />
             <Route path="/groups" element={<Groups />} />
             <Route path="/group/:id" element={<GroupDetails />} />
             <Route path="/session/waiting" element={<SessionWaiting />} />

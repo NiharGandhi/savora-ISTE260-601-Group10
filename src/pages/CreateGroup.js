@@ -144,7 +144,12 @@ const CreateGroup = () => {
       addNotificationToUser(targetUserId, notification);
     });
 
-    navigate('/home');
+    // Navigate to planning page with group data
+    navigate('/group-planning', {
+      state: {
+        group: group,
+      }
+    });
   };
 
   // Filter contacts based on search query
