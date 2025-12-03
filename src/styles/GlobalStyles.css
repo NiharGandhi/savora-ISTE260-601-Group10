@@ -13,16 +13,17 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #0a0a0a;
-  overflow: hidden;
-  height: 100vh;
-  width: 100vw;
+  /* Allow the page to grow and scroll */
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 #root {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   background: radial-gradient(ellipse at top, #1e1b4b 0%, #0a0a0a 50%);
   padding: 20px;
   position: relative;
@@ -49,8 +50,9 @@ body {
 
 /* Premium Mobile Frame */
 .mobile-frame {
-  width: 390px;
-  height: 844px;
+  /* Approximate iPhone-style aspect ratio and footprint */
+  width: 360px;
+  height: 752px;
   background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
   border-radius: 55px;
   padding: 4px;
@@ -609,14 +611,10 @@ button[style*="background: rgb(249, 250, 251)"][style*="justifyContent: space-be
 /* Ensure controls are always clickable */
 .app-controls-bar {
   pointer-events: auto !important;
-  z-index: 10000 !important;
-  position: relative !important;
 }
 
 .app-reset-button {
   pointer-events: auto !important;
-  z-index: 10001 !important;
-  position: relative !important;
   cursor: pointer !important;
 }
 
@@ -633,8 +631,6 @@ button[style*="background: rgb(249, 250, 251)"][style*="justifyContent: space-be
 
 .app-user-selector {
   pointer-events: auto !important;
-  z-index: 10000 !important;
-  position: relative !important;
 }
 
 .app-user-dropdown {
@@ -718,4 +714,63 @@ button[style*="background: rgb(249, 250, 251)"][style*="justifyContent: space-be
 
 .custom-dropdown-menu::-webkit-scrollbar-thumb:hover {
   background: #9CA3AF;
+}
+
+/* App.js Responsive Styles */
+@media (max-width: 900px) {
+  .app-controls-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 12px 16px !important;
+    gap: 12px !important;
+  }
+
+  .app-reset-button {
+    width: 100% !important;
+    padding: 12px 20px !important;
+    font-size: 16px !important;
+  }
+
+  .app-user-selector {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .app-user-label {
+    font-size: 16px !important;
+  }
+
+  .app-user-dropdown {
+    flex: 1 !important;
+    min-width: auto !important;
+    font-size: 16px !important;
+    padding: 12px 16px !important;
+    padding-right: 40px !important;
+  }
+
+  .app-container {
+    padding-top: 120px !important;
+  }
+
+  .app-frames-container {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 30px !important;
+    padding: 20px 10px !important;
+  }
+
+  .app-frame-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .app-frame-label {
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 1200px) {
+  .app-frames-container {
+    gap: 30px !important;
+  }
 }

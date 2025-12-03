@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { theme } from '../styles/theme';
+import { IoWarning } from 'react-icons/io5';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -140,24 +141,84 @@ const Settings = () => {
         <div style={styles.section}>
           <h3 style={styles.sectionTitle}>Account</h3>
           <div style={styles.menuList}>
-            <button style={styles.menuItem}>
+            <button
+              style={styles.menuItem}
+              onClick={() =>
+                navigate('/coming-soon', {
+                  state: {
+                    featureName: 'Notifications',
+                    description:
+                      'You’ll soon be able to fine‑tune how and when Savora notifies you about new sessions, group invites, and decisions.',
+                  },
+                })
+              }
+            >
               <span style={styles.menuIcon}>🔔</span>
               <span style={styles.menuText}>Notifications</span>
               <span style={styles.menuArrow}>→</span>
             </button>
-            <button style={styles.menuItem}>
+            <button
+              style={styles.menuItem}
+              onClick={() =>
+                navigate('/coming-soon', {
+                  state: {
+                    featureName: 'Privacy',
+                    description:
+                      'Soon you’ll be able to manage what information is shared with your groups and control your data preferences.',
+                  },
+                })
+              }
+            >
               <span style={styles.menuIcon}>🔒</span>
               <span style={styles.menuText}>Privacy</span>
               <span style={styles.menuArrow}>→</span>
             </button>
-            <button style={styles.menuItem}>
+            <button
+              style={styles.menuItem}
+              onClick={() =>
+                navigate('/coming-soon', {
+                  state: {
+                    featureName: 'Help & Support',
+                    description:
+                      'We’re working on an in‑app help center with FAQs and direct support so you can get unstuck quickly.',
+                  },
+                })
+              }
+            >
               <span style={styles.menuIcon}>❓</span>
               <span style={styles.menuText}>Help & Support</span>
               <span style={styles.menuArrow}>→</span>
             </button>
-            <button style={styles.menuItem}>
+            <button
+              style={styles.menuItem}
+              onClick={() =>
+                navigate('/coming-soon', {
+                  state: {
+                    featureName: 'About Savora',
+                    description:
+                      'Learn more about the story, team, and vision behind Savora. This page is on its way.',
+                  },
+                })
+              }
+            >
               <span style={styles.menuIcon}>ℹ️</span>
               <span style={styles.menuText}>About Savora</span>
+              <span style={styles.menuArrow}>→</span>
+            </button>
+            <button
+              style={styles.menuItem}
+              onClick={() =>
+                navigate('/error-states', {
+                  state: {
+                    featureName: 'Error States',
+                    description:
+                      'Learn more about the error states and how to handle them.',
+                  },
+                })
+              }
+            >
+              <span style={styles.menuIcon}><IoWarning size={20} /></span>
+              <span style={styles.menuText}>Error States</span>
               <span style={styles.menuArrow}>→</span>
             </button>
           </div>
@@ -260,7 +321,7 @@ const styles = {
     width: '60px',
     height: '60px',
     borderRadius: '50%',
-    background: theme.colors.primary.blueGradient,
+    background: theme.colors.primary.gradient,
     color: 'white',
     display: 'flex',
     alignItems: 'center',

@@ -95,12 +95,28 @@ const CreateGroup = () => {
     }
 
     const groupId = Date.now().toString();
+
+    // Ensure the creator is also included as a member of the group
+    const creatorMember = currentUser
+      ? {
+          name: currentUser.name,
+          phone: currentUser.phone,
+          email: currentUser.email,
+        }
+      : null;
+
+    // Build the members list with the creator first (if available),
+    // followed by all selected contacts
+    const members = creatorMember
+      ? [creatorMember, ...selectedContacts]
+      : selectedContacts;
+
     const group = {
       id: groupId,
       name: groupName,
       description,
       photo: photo,
-      members: selectedContacts,
+      members,
       createdAt: new Date().toISOString(),
     };
 
@@ -116,7 +132,8 @@ const CreateGroup = () => {
         groupName: groupName,
         groupIcon: photo,
         groupDescription: description,
-        groupMembers: selectedContacts, // Include all members
+        // Include everyone in the group (creator + selected contacts)
+        groupMembers: members,
         inviterName: currentUser?.name || 'Someone',
         inviterPhone: currentUser?.phone || '',
         timestamp: new Date().toISOString(),

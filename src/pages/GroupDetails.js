@@ -325,7 +325,7 @@ const styles = {
     width: '44px',
     height: '44px',
     borderRadius: '12px',
-    background: theme.colors.primary.blueGradient,
+    background: theme.colors.primary.gradient,
     color: 'white',
     display: 'flex',
     alignItems: 'center',

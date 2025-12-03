@@ -17,6 +17,8 @@ import Preferences from './pages/Preferences';
 import Result from './pages/Result';
 import Explore from './pages/Explore';
 import Settings from './pages/Settings';
+import ComingSoon from './pages/ComingSoon';
+import ErrorStates from './pages/ErrorStates';
 import SessionWaiting from './pages/SessionWaiting';
 import AdditionalMatches from './pages/AdditionalMatches';
 import Notifications from './pages/Notifications';
@@ -138,6 +140,8 @@ const AppRoutes = ({ userId, useMemoryRouter = false }) => {
             <Route path="/additional-matches/:sessionId" element={<AdditionalMatches />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/coming-soon" element={<ComingSoon />} />
+            <Route path="/error-states" element={<ErrorStates />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/join" element={<JoinWithCode />} />
           </Routes>
@@ -169,8 +173,8 @@ function App() {
   };
 
   return (
-    <div style={styles.appContainer}>
-      {/* Reset Storage Button and User 2 Selector */}
+    <div style={styles.appContainer} className="app-container">
+      {/* Reset Storage Button and User 2 Selector - Fixed at top */}
       <div style={styles.controlsBar} className="app-controls-bar">
         <button 
           onClick={handleReset}
@@ -181,7 +185,7 @@ function App() {
           🔄 Reset All Storage
         </button>
         <div style={styles.userSelector} className="app-user-selector">
-          <label htmlFor="user2-select" style={styles.userSelectorLabel}>User 2:</label>
+          <label htmlFor="user2-select" style={styles.userSelectorLabel} className="app-user-label">User 2:</label>
           <select 
             id="user2-select"
             value={user2Id} 
@@ -197,16 +201,16 @@ function App() {
       </div>
 
       {/* Two Mobile Frames Side by Side */}
-      <div style={styles.framesContainer}>
+      <div style={styles.framesContainer} className="app-frames-container">
         {/* User 1 - Default (Dynamic - anyone using sign up/login) */}
-        <div style={styles.frameWrapper}>
-          <div style={styles.frameLabel}>User 1 (Default)</div>
+        <div style={styles.frameWrapper} className="app-frame-wrapper">
+          <div style={styles.frameLabel} className="app-frame-label">User 1 (Default)</div>
           <AppRoutes userId="default" />
         </div>
 
         {/* User 2 - Selected from dropdown */}
-        <div style={styles.frameWrapper}>
-          <div style={styles.frameLabel}>User 2 ({fakeUsers[user2Id]?.name || 'Select'})</div>
+        <div style={styles.frameWrapper} className="app-frame-wrapper">
+          <div style={styles.frameLabel} className="app-frame-label">User 2 ({fakeUsers[user2Id]?.name || 'Select'})</div>
           <AppRoutes userId={user2Id} useMemoryRouter={true} key={user2Id} />
         </div>
       </div>
@@ -216,36 +220,54 @@ function App() {
 
 const styles = {
   appContainer: {
-    minHeight: '100vh',
-    background: '#1a1a1a',
-    padding: '20px',
+    width: '100%',
+    minHeight: '100%',
+    background: 'transparent',
+    padding: '32px 16px 40px',
+    paddingTop: '40px',
     position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    /* Let the browser handle scrolling instead of this container */
+    overflowX: 'visible',
+    overflowY: 'visible',
   },
   controlsBar: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: '20px',
-    marginBottom: '20px',
+    gap: '16px',
     flexWrap: 'wrap',
-    position: 'relative',
-    zIndex: 10000,
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    right: '0',
+    width: '100%',
+    padding: '16px 20px',
+    background: 'rgba(26, 26, 26, 0.95)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+    zIndex: 99999,
     pointerEvents: 'auto',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
   },
   resetButton: {
     background: '#EF4444',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
-    padding: '12px 24px',
-    fontSize: '16px',
+    padding: '10px 20px',
+    fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
     boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
     transition: 'all 0.2s ease',
     pointerEvents: 'auto',
-    zIndex: 10001,
+    zIndex: 100000,
     position: 'relative',
+    flexShrink: 0,
   },
   resetButtonHover: {
     background: '#DC2626',
@@ -257,8 +279,9 @@ const styles = {
     alignItems: 'center',
     gap: '10px',
     position: 'relative',
-    zIndex: 10000,
+    zIndex: 100000,
     pointerEvents: 'auto',
+    flexShrink: 0,
   },
   userSelectorLabel: {
     color: 'white',
@@ -266,6 +289,7 @@ const styles = {
     fontWeight: '600',
     pointerEvents: 'none',
     userSelect: 'none',
+    whiteSpace: 'nowrap',
   },
   userSelectorDropdown: {
     background: '#2a2a2a',
@@ -280,7 +304,7 @@ const styles = {
     outline: 'none',
     minWidth: '120px',
     pointerEvents: 'auto',
-    zIndex: 10001,
+    zIndex: 100001,
     appearance: 'none',
     WebkitAppearance: 'none',
     MozAppearance: 'none',
@@ -289,18 +313,25 @@ const styles = {
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'right 12px center',
     backgroundSize: '12px',
+    flexShrink: 0,
   },
   framesContainer: {
     display: 'flex',
     gap: '40px',
     justifyContent: 'center',
+    alignItems: 'flex-start',
     flexWrap: 'wrap',
+    width: '100%',
+    maxWidth: '1120px',
+    padding: '16px 0 0',
+    margin: '0 auto 40px',
   },
   frameWrapper: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '12px',
+    gap: '0px',
+    flexShrink: 0,
   },
   frameLabel: {
     color: 'white',
@@ -308,6 +339,9 @@ const styles = {
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: '1px',
+    marginBottom: '8px',
+    whiteSpace: 'nowrap',
+    textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
   },
 };
 
