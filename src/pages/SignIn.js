@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { theme } from '../styles/theme';
+import { IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5';
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const SignIn = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Email validation
   const validateEmail = (email) => {
@@ -109,14 +111,29 @@ const SignIn = () => {
           {/* Password Input */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
-            <input
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={handlePasswordChange}
-              onKeyPress={handleKeyPress}
-              style={styles.input}
-            />
+            <div style={styles.passwordContainer}>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={password}
+                onChange={handlePasswordChange}
+                onKeyPress={handleKeyPress}
+                style={styles.passwordInput}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="password-toggle-button"
+                style={styles.passwordToggle}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <IoEyeOffOutline size={20} color={theme.colors.text.secondary} />
+                ) : (
+                  <IoEyeOutline size={20} color={theme.colors.text.secondary} />
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Error Message */}
@@ -230,6 +247,35 @@ const styles = {
     fontSize: '15px',
     outline: 'none',
     background: 'white',
+    transition: 'all 0.2s ease',
+  },
+  passwordContainer: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+  },
+  passwordInput: {
+    width: '100%',
+    padding: '14px 48px 14px 16px',
+    border: `1px solid ${theme.colors.border.medium}`,
+    borderRadius: '12px',
+    fontSize: '15px',
+    outline: 'none',
+    background: 'white',
+    transition: 'all 0.2s ease',
+  },
+  passwordToggle: {
+    position: 'absolute',
+    right: '12px',
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '4px',
     transition: 'all 0.2s ease',
   },
   errorText: {

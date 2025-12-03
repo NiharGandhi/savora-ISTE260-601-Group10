@@ -235,13 +235,15 @@ const Home = () => {
 
           {/* Quick Actions */}
           <div style={styles.section}>
-            <h3 style={styles.sectionTitle}>Quick Actions</h3>
+            <button style={styles.fullWidthAction} onClick={() => navigate('/decision')}>
+              <div style={styles.actionLabel}>Start Decision</div>
+            </button>
             <div style={styles.actionsGrid}>
-              <button style={styles.primaryAction} onClick={() => navigate('/decision')}>
-                <div style={styles.actionLabel}>Create Decision</div>
+              <button style={styles.secondaryAction} onClick={() => navigate('/create-group')}>
+                <div style={styles.actionLabel}>Create a New Group</div>
               </button>
               <button style={styles.secondaryAction} onClick={() => navigate('/join')}>
-                <div style={styles.actionLabel}>Join with Code</div>
+                <div style={styles.actionLabel}>Join using Code</div>
               </button>
             </div>
           </div>
@@ -318,13 +320,7 @@ const Home = () => {
                   <IoPeople size={60} color={theme.colors.primary.main} />
                 </div>
                 <div style={styles.emptyTitle}>No active sessions</div>
-                <div style={styles.emptyText}>Start a new decision or join with a code</div>
-                <button
-                  style={styles.emptyButton}
-                  onClick={() => navigate('/decision')}
-                >
-                  Start Decision
-                </button>
+                <div style={styles.emptyText}>There's currently no active sessions.</div>
               </div>
             )}
           </div>
@@ -617,6 +613,7 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: '12px',
+    marginTop: '12px',
   },
   primaryAction: {
     background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
@@ -632,11 +629,30 @@ const styles = {
     boxShadow: '0 6px 20px rgba(59, 130, 246, 0.3)',
     transition: 'all 0.2s ease',
   },
+  fullWidthAction: {
+    width: '100%',
+    height: '56px',
+    background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+    border: 'none',
+    borderRadius: '16px',
+    padding: '0 16px',
+    color: 'white',
+    cursor: 'pointer',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 6px 20px rgba(59, 130, 246, 0.3)',
+    transition: 'all 0.2s ease',
+    marginBottom: '0',
+    boxSizing: 'border-box',
+  },
   secondaryAction: {
+    height: '56px',
     background: 'rgba(255, 255, 255, 0.95)',
     border: '2px solid #3B82F6',
     borderRadius: '16px',
-    padding: '18px 16px',
+    padding: '0 16px',
     color: theme.colors.primary.main,
     cursor: 'pointer',
     display: 'flex',
@@ -645,6 +661,7 @@ const styles = {
     justifyContent: 'center',
     transition: 'all 0.2s ease',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
+    boxSizing: 'border-box',
   },
   actionLabel: {
     fontSize: '15px',

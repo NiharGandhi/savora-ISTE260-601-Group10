@@ -201,37 +201,194 @@ export const UserProvider = ({ children, userId = 'default' }) => {
 
   // Load user by email and password (for sign in)
   const loadUserByEmail = (email, password) => {
-    const savedUser = localStorage.getItem(getStorageKey('user'));
-
-    if (!savedUser) {
+    if (!email || !password) {
       return false;
     }
 
-    const userData = JSON.parse(savedUser);
+    // Normalize inputs
+    const normalizedEmail = email.trim().toLowerCase();
+    const trimmedPassword = password.trim();
+    
+    // Helper function to check if user matches
+    const checkUserMatch = (userData) => {
+      if (!userData || typeof userData !== 'object') return false;
+      if (!userData.email || !userData.password) return false;
+      
+      const userEmailNormalized = String(userData.email).trim().toLowerCase();
+      const userPassword = String(userData.password);
+      
+      return userEmailNormalized === normalizedEmail && userPassword === trimmedPassword;
+    };
 
-    // Check if email and password match
-    if (userData.email === email && userData.password === password) {
-      setUser(userData);
+    // First, check current userId's storage (fast path)
+    const currentUserKey = getStorageKey('user');
+    const currentUserStr = localStorage.getItem(currentUserKey);
+    if (currentUserStr) {
+      try {
+        const currentUserData = JSON.parse(currentUserStr);
+        if (checkUserMatch(currentUserData)) {
+          // Found in current storage, load all data
+          setUser(currentUserData);
+          
+          // Load all user data for current userId
+          const savedPreferences = localStorage.getItem(getStorageKey('preferences'));
+          const savedGroups = localStorage.getItem(getStorageKey('groups'));
+          const savedSessions = localStorage.getItem(getStorageKey('sessions'));
+          const savedFavorites = localStorage.getItem(getStorageKey('favorites'));
+          const savedStreak = localStorage.getItem(getStorageKey('streak'));
+          const savedNotifications = localStorage.getItem(getStorageKey('notifications'));
 
-      // Also load all other user data
-      const savedPreferences = localStorage.getItem(getStorageKey('preferences'));
-      const savedGroups = localStorage.getItem(getStorageKey('groups'));
-      const savedSessions = localStorage.getItem(getStorageKey('sessions'));
-      const savedFavorites = localStorage.getItem(getStorageKey('favorites'));
-      const savedStreak = localStorage.getItem(getStorageKey('streak'));
-      const savedNotifications = localStorage.getItem(getStorageKey('notifications'));
+          if (savedPreferences) setPreferences(JSON.parse(savedPreferences));
+          if (savedGroups) setGroups(JSON.parse(savedGroups));
+          if (savedSessions) setSessions(JSON.parse(savedSessions));
+          if (savedFavorites) setFavorites(JSON.parse(savedFavorites));
+          if (savedStreak) setStreak(parseInt(savedStreak) || 0);
+          if (savedNotifications) setNotifications(JSON.parse(savedNotifications));
+          
+          return true;
+        }
+      } catch (e) {
+        // Invalid JSON, continue searching
+      }
+    }
+    
+    // Search through all localStorage keys to find user with matching email
+    const allKeys = Object.keys(localStorage);
+    let foundUserId = null;
+    let foundUserData = null;
+
+    // Look for user keys (savora_user_*)
+    for (const key of allKeys) {
+      if (key.startsWith('savora_user_')) {
+        // Extract userId from key (savora_user_<userId>)
+        const userIdFromKey = key.replace('savora_user_', '');
+        
+        // Skip fake test users (nihar, kripa, zara) - they're for testing only
+        if (userIdFromKey === 'nihar' || userIdFromKey === 'kripa' || userIdFromKey === 'zara') {
+          continue;
+        }
+        
+        // Skip if we already checked this key
+        if (key === currentUserKey) {
+          continue;
+        }
+        
+        try {
+          const userDataStr = localStorage.getItem(key);
+          if (!userDataStr) continue;
+          
+          const userData = JSON.parse(userDataStr);
+          
+          if (checkUserMatch(userData)) {
+            foundUserId = userIdFromKey;
+            foundUserData = userData;
+            break;
+          }
+        } catch (e) {
+          // Skip invalid JSON
+          continue;
+        }
+      }
+    }
+
+    if (!foundUserData) {
+      return false;
+    }
+
+    // Set the found user
+    setUser(foundUserData);
+
+    // Load all other user data using the found userId
+    const getFoundUserStorageKey = (key) => {
+      if (key === 'sessions') {
+        return 'savora_sessions_global';
+      }
+      return `savora_${key}_${foundUserId}`;
+    };
+
+    // Load all user data from found user's storage
+    try {
+      const savedPreferences = localStorage.getItem(getFoundUserStorageKey('preferences'));
+      const savedGroups = localStorage.getItem(getFoundUserStorageKey('groups'));
+      const savedSessions = localStorage.getItem(getFoundUserStorageKey('sessions'));
+      const savedFavorites = localStorage.getItem(getFoundUserStorageKey('favorites'));
+      const savedStreak = localStorage.getItem(getFoundUserStorageKey('streak'));
+      const savedNotifications = localStorage.getItem(getFoundUserStorageKey('notifications'));
 
       if (savedPreferences) setPreferences(JSON.parse(savedPreferences));
       if (savedGroups) setGroups(JSON.parse(savedGroups));
       if (savedSessions) setSessions(JSON.parse(savedSessions));
       if (savedFavorites) setFavorites(JSON.parse(savedFavorites));
-      if (savedStreak) setStreak(parseInt(savedStreak));
+      if (savedStreak) setStreak(parseInt(savedStreak) || 0);
       if (savedNotifications) setNotifications(JSON.parse(savedNotifications));
-
-      return true;
+    } catch (e) {
+      console.error('Error loading user data:', e);
     }
 
-    return false;
+    // Copy the user data to current userId's storage for consistency
+    // This ensures the user is loaded in the current context
+    try {
+      localStorage.setItem(getStorageKey('user'), JSON.stringify(foundUserData));
+      
+      const savedPreferences = localStorage.getItem(getFoundUserStorageKey('preferences'));
+      const savedGroups = localStorage.getItem(getFoundUserStorageKey('groups'));
+      const savedFavorites = localStorage.getItem(getFoundUserStorageKey('favorites'));
+      const savedStreak = localStorage.getItem(getFoundUserStorageKey('streak'));
+      const savedNotifications = localStorage.getItem(getFoundUserStorageKey('notifications'));
+      
+      if (savedPreferences) localStorage.setItem(getStorageKey('preferences'), savedPreferences);
+      if (savedGroups) localStorage.setItem(getStorageKey('groups'), savedGroups);
+      if (savedFavorites) localStorage.setItem(getStorageKey('favorites'), savedFavorites);
+      if (savedStreak) localStorage.setItem(getStorageKey('streak'), savedStreak);
+      if (savedNotifications) localStorage.setItem(getStorageKey('notifications'), savedNotifications);
+    } catch (e) {
+      console.error('Error copying user data to current context:', e);
+    }
+
+    return true;
+  };
+
+  // Helper function to load all user data for a given userId
+  const loadUserData = (targetUserId) => {
+    const getTargetStorageKey = (key) => {
+      if (key === 'sessions') {
+        return 'savora_sessions_global';
+      }
+      return `savora_${key}_${targetUserId}`;
+    };
+
+    try {
+      const savedPreferences = localStorage.getItem(getTargetStorageKey('preferences'));
+      const savedGroups = localStorage.getItem(getTargetStorageKey('groups'));
+      const savedSessions = localStorage.getItem(getTargetStorageKey('sessions'));
+      const savedFavorites = localStorage.getItem(getTargetStorageKey('favorites'));
+      const savedStreak = localStorage.getItem(getTargetStorageKey('streak'));
+      const savedNotifications = localStorage.getItem(getTargetStorageKey('notifications'));
+
+      if (savedPreferences) setPreferences(JSON.parse(savedPreferences));
+      if (savedGroups) setGroups(JSON.parse(savedGroups));
+      if (savedSessions) setSessions(JSON.parse(savedSessions));
+      if (savedFavorites) setFavorites(JSON.parse(savedFavorites));
+      if (savedStreak) setStreak(parseInt(savedStreak) || 0);
+      if (savedNotifications) setNotifications(JSON.parse(savedNotifications));
+    } catch (e) {
+      console.error('Error loading user data:', e);
+    }
+  };
+
+  // Logout function - only clears current session state, keeps all data in localStorage
+  // This allows user to log back in with same credentials
+  const logout = () => {
+    // Only clear the current session state (React state)
+    // Keep ALL data in localStorage including user data, so user can log back in
+    setUser(null);
+    setPreferences(null);
+    setGroups([]);
+    setFavorites([]);
+    setStreak(0);
+    setNotifications([]);
+    // Keep sessions in localStorage - don't clear them
+    // All user data remains in localStorage for future login
   };
 
   const value = {
@@ -256,6 +413,7 @@ export const UserProvider = ({ children, userId = 'default' }) => {
     declineInvitation,
     markNotificationAsRead,
     loadUserByEmail,
+    logout,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

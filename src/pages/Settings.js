@@ -6,11 +6,11 @@ import { IoWarning } from 'react-icons/io5';
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { user, preferences, streak, savePreferences } = useUser();
+  const { user, preferences, streak, savePreferences, logout } = useUser();
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to log out?')) {
-      localStorage.clear();
+      logout(); // Only clears current user's session data, keeps tokens
       navigate('/');
     }
   };
@@ -175,15 +175,7 @@ const Settings = () => {
             </button>
             <button
               style={styles.menuItem}
-              onClick={() =>
-                navigate('/coming-soon', {
-                  state: {
-                    featureName: 'Help & Support',
-                    description:
-                      'We’re working on an in‑app help center with FAQs and direct support so you can get unstuck quickly.',
-                  },
-                })
-              }
+              onClick={() => navigate('/help-support')}
             >
               <span style={styles.menuIcon}>❓</span>
               <span style={styles.menuText}>Help & Support</span>
@@ -275,7 +267,7 @@ const styles = {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    background: '#F9FAFB',
+    background: '#F3F4F6',
   },
   header: {
     background: 'white',
@@ -315,7 +307,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '16px',
-    boxShadow: theme.shadows.sm,
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
   },
   avatar: {
     width: '60px',
@@ -362,7 +354,7 @@ const styles = {
     borderRadius: '16px',
     padding: '20px',
     textAlign: 'center',
-    boxShadow: theme.shadows.sm,
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
   },
   statValue: {
     fontSize: '32px',
@@ -385,7 +377,7 @@ const styles = {
     borderRadius: '16px',
     overflow: 'hidden',
     marginBottom: '12px',
-    boxShadow: theme.shadows.sm,
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
   },
   preferenceItem: {
     display: 'flex',
@@ -429,7 +421,7 @@ const styles = {
     background: 'white',
     borderRadius: '16px',
     overflow: 'hidden',
-    boxShadow: theme.shadows.sm,
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
   },
   menuItem: {
     width: '100%',

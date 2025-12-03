@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { theme } from '../styles/theme';
-import { IoInformationCircle } from 'react-icons/io5';
+import { IoInformationCircle, IoCalendarOutline, IoChevronBack, IoChevronForward, IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5';
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -22,11 +22,27 @@ const Onboarding = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [budgetRange, setBudgetRange] = useState(2); // 0-3 index for budget ranges
   const [distanceRange, setDistanceRange] = useState(2); // 0-3 index for distance ranges
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [dietaryRestrictions, setDietaryRestrictions] = useState([]);
   const [showDobTooltip, setShowDobTooltip] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [calendarView, setCalendarView] = useState('calendar'); // 'calendar', 'month', 'year'
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    // Initialize to 20 years ago (reasonable default for DOB)
+    const defaultDate = new Date();
+    defaultDate.setFullYear(defaultDate.getFullYear() - 20);
+    return defaultDate.getMonth();
+  });
+  const [calendarYear, setCalendarYear] = useState(() => {
+    const defaultDate = new Date();
+    defaultDate.setFullYear(defaultDate.getFullYear() - 20);
+    return defaultDate.getFullYear();
+  });
+  const calendarRef = useRef(null);
 
   // Budget ranges
   const budgetRanges = [
@@ -97,16 +113,19 @@ const Onboarding = () => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsCountryDropdownOpen(false);
       }
+      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
+        setShowCalendar(false);
+      }
     };
 
-    if (isCountryDropdownOpen) {
+    if (isCountryDropdownOpen || showCalendar) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isCountryDropdownOpen]);
+  }, [isCountryDropdownOpen, showCalendar]);
 
   // Phone country codes and validation rules
   const phoneCountries = {
@@ -152,6 +171,137 @@ const Onboarding = () => {
     return age >= 13 && age <= 120;
   };
 
+  // Calendar utility functions
+  const getDaysInMonth = (month, year) => {
+    return new Date(year, month + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (month, year) => {
+    return new Date(year, month, 1).getDay();
+  };
+
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${month}/${day}/${year}`;
+  };
+
+  const formatDateForISO = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleCalendarDateSelect = (day) => {
+    const selectedDate = new Date(calendarYear, calendarMonth, day);
+    const isoDate = formatDateForISO(selectedDate);
+    
+    setDob(isoDate);
+    setShowCalendar(false);
+    
+    // Validate the selected date
+    if (!validateDob(isoDate)) {
+      const age = calculateAge(isoDate);
+      if (age < 13) {
+        setDobError('You must be at least 13 years old');
+      } else {
+        setDobError('Please enter a valid date of birth');
+      }
+    } else {
+      setDobError('');
+    }
+  };
+
+  const handlePrevMonth = () => {
+    if (calendarMonth === 0) {
+      setCalendarMonth(11);
+      setCalendarYear(calendarYear - 1);
+    } else {
+      setCalendarMonth(calendarMonth - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (calendarMonth === 11) {
+      setCalendarMonth(0);
+      setCalendarYear(calendarYear + 1);
+    } else {
+      setCalendarMonth(calendarMonth + 1);
+    }
+  };
+
+  const isDateDisabled = (day) => {
+    const date = new Date(calendarYear, calendarMonth, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+    
+    // Disable future dates
+    if (date > today) return true;
+    
+    // Disable dates that would make user less than 13 years old
+    const age = calculateAge(formatDateForISO(date));
+    if (age < 13 || age > 120) return true;
+    
+    return false;
+  };
+
+  const isDateSelected = (day) => {
+    if (!dob) return false;
+    const selectedDate = new Date(dob);
+    return selectedDate.getDate() === day &&
+           selectedDate.getMonth() === calendarMonth &&
+           selectedDate.getFullYear() === calendarYear;
+  };
+
+  const getMonthName = (month) => {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[month];
+  };
+
+  const getMonthNames = () => {
+    return [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+  };
+
+  const getYearRange = () => {
+    const currentYear = new Date().getFullYear();
+    const minYear = currentYear - 120; // Allow up to 120 years old
+    const maxYear = currentYear;
+    const years = [];
+    for (let year = maxYear; year >= minYear; year--) {
+      years.push(year);
+    }
+    return years;
+  };
+
+  const handleMonthSelect = (month) => {
+    setCalendarMonth(month);
+    setCalendarView('calendar');
+  };
+
+  const handleYearSelect = (year) => {
+    setCalendarYear(year);
+    setCalendarView('month');
+  };
+
+  const openYearPicker = () => {
+    setCalendarView('year');
+  };
+
+  const openMonthPicker = () => {
+    setCalendarView('month');
+  };
+
   // Phone validation based on selected country
   const validatePhone = (phone, country) => {
     if (phone === '') return true; // Phone is optional
@@ -167,13 +317,14 @@ const Onboarding = () => {
            digitsOnly.length <= countryInfo.maxLength;
   };
 
-  // Password validation (minimum 8 characters, at least 1 uppercase, 1 lowercase, 1 number)
+  // Password validation (minimum 8 characters, at least 1 uppercase, 1 lowercase, 1 number, 1 symbol)
   const validatePassword = (pwd) => {
     if (pwd.length < 8) return false;
     const hasUpperCase = /[A-Z]/.test(pwd);
     const hasLowerCase = /[a-z]/.test(pwd);
     const hasNumber = /[0-9]/.test(pwd);
-    return hasUpperCase && hasLowerCase && hasNumber;
+    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd);
+    return hasUpperCase && hasLowerCase && hasNumber && hasSymbol;
   };
 
   const handleDobChange = (e) => {
@@ -232,7 +383,7 @@ const Onboarding = () => {
     const value = e.target.value;
     setPassword(value);
     if (value && !validatePassword(value)) {
-      setPasswordError('Password must be at least 8 characters with uppercase, lowercase, and number');
+      setPasswordError('Password must be at least 8 characters with uppercase, lowercase, number, and symbol');
     } else {
       setPasswordError('');
     }
@@ -361,16 +512,176 @@ const Onboarding = () => {
                     )}
                   </div>
                 </div>
-                <input
-                  type="date"
-                  value={dob}
-                  onChange={handleDobChange}
+                <div style={styles.datePickerContainer} ref={calendarRef}>
+                  <div
+                    onClick={() => {
+                      setShowCalendar(!showCalendar);
+                      setCalendarView('calendar');
+                      // Sync calendar view with selected date if exists
+                      if (dob) {
+                        const selectedDate = new Date(dob);
+                        setCalendarMonth(selectedDate.getMonth());
+                        setCalendarYear(selectedDate.getFullYear());
+                      }
+                    }}
+                    className="date-picker-input"
                   style={{
-                    ...styles.input,
+                      ...styles.datePickerInput,
                     borderColor: dobError ? theme.colors.error : theme.colors.border.medium,
                   }}
-                  max={new Date().toISOString().split('T')[0]}
-                />
+                  >
+                    <span style={{
+                      ...styles.datePickerValue,
+                      color: dob ? theme.colors.text.primary : theme.colors.text.tertiary,
+                    }}>
+                      {dob ? formatDateForInput(dob) : 'Select date'}
+                    </span>
+                    <IoCalendarOutline size={20} color={theme.colors.text.secondary} />
+                  </div>
+                  
+                  {showCalendar && (
+                    <div style={styles.calendarDropdown}>
+                      {calendarView === 'calendar' && (
+                        <>
+                          {/* Calendar Header */}
+                          <div style={styles.calendarHeader}>
+                            <button
+                              type="button"
+                              onClick={handlePrevMonth}
+                              className="calendar-nav-button"
+                              style={styles.calendarNavButton}
+                            >
+                              <IoChevronBack size={20} />
+                            </button>
+                            <div 
+                              onClick={openMonthPicker}
+                              className="calendar-month-year-clickable"
+                              style={styles.calendarMonthYearClickable}
+                            >
+                              {getMonthName(calendarMonth)} {calendarYear}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleNextMonth}
+                              className="calendar-nav-button"
+                              style={styles.calendarNavButton}
+                            >
+                              <IoChevronForward size={20} />
+                            </button>
+                          </div>
+                          
+                          {/* Calendar Days Grid */}
+                          <div style={styles.calendarWeekdays}>
+                            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                              <div key={day} style={styles.calendarWeekday}>{day}</div>
+                            ))}
+                          </div>
+                          
+                          <div style={styles.calendarDays}>
+                            {Array.from({ length: getFirstDayOfMonth(calendarMonth, calendarYear) }, (_, i) => (
+                              <div key={`empty-${i}`} style={styles.calendarDayEmpty} />
+                            ))}
+                            {Array.from({ length: getDaysInMonth(calendarMonth, calendarYear) }, (_, i) => {
+                              const day = i + 1;
+                              const disabled = isDateDisabled(day);
+                              const selected = isDateSelected(day);
+                              
+                              return (
+                                <button
+                                  key={day}
+                                  type="button"
+                                  onClick={() => !disabled && handleCalendarDateSelect(day)}
+                                  disabled={disabled}
+                                  className={!disabled ? "calendar-day-button" : ""}
+                                  style={{
+                                    ...styles.calendarDay,
+                                    ...(disabled ? styles.calendarDayDisabled : {}),
+                                    ...(selected ? styles.calendarDaySelected : {}),
+                                  }}
+                                >
+                                  {day}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+
+                      {calendarView === 'month' && (
+                        <>
+                          {/* Month Picker Header */}
+                          <div style={styles.calendarHeader}>
+                            <button
+                              type="button"
+                              onClick={openYearPicker}
+                              className="calendar-nav-button"
+                              style={styles.calendarNavButton}
+                            >
+                              <IoChevronBack size={20} />
+                            </button>
+                            <div 
+                              onClick={openYearPicker}
+                              className="calendar-month-year-clickable"
+                              style={styles.calendarMonthYearClickable}
+                            >
+                              {calendarYear}
+                            </div>
+                            <div style={styles.calendarNavButton}></div>
+                          </div>
+                          
+                          {/* Month Grid */}
+                          <div style={styles.monthYearGrid}>
+                            {getMonthNames().map((monthName, index) => (
+                              <button
+                                key={index}
+                                type="button"
+                                onClick={() => handleMonthSelect(index)}
+                                className="month-year-button"
+                                style={{
+                                  ...styles.monthYearButton,
+                                  ...(calendarMonth === index ? styles.monthYearButtonSelected : {}),
+                                }}
+                              >
+                                {monthName}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+
+                      {calendarView === 'year' && (
+                        <>
+                          {/* Year Picker Header */}
+                          <div style={styles.calendarHeader}>
+                            <div style={styles.calendarNavButton}></div>
+                            <div style={styles.calendarMonthYear}>
+                              Select Year
+                            </div>
+                            <div style={styles.calendarNavButton}></div>
+                          </div>
+                          
+                          {/* Year List */}
+                          <div className="year-list-container" style={styles.yearListContainer}>
+                            {getYearRange().map((year) => (
+                              <button
+                                key={year}
+                                type="button"
+                                onClick={() => handleYearSelect(year)}
+                                className="year-button"
+                                style={{
+                                  ...styles.yearButton,
+                                  ...(calendarYear === year ? styles.monthYearButtonSelected : {}),
+                                }}
+                              >
+                                {year}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
                 {dobError && <span style={styles.errorText}>{dobError}</span>}
               </div>
 
@@ -448,16 +759,31 @@ const Onboarding = () => {
 
               <div style={styles.inputGroup}>
                 <label style={styles.label}>Password</label>
+                <div style={styles.passwordContainer}>
                 <input
-                  type="password"
+                    type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
                   onChange={handlePasswordChange}
                   style={{
-                    ...styles.input,
+                      ...styles.passwordInput,
                     borderColor: passwordError ? theme.colors.error : theme.colors.border.medium,
                   }}
                 />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="password-toggle-button"
+                    style={styles.passwordToggle}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <IoEyeOffOutline size={20} color={theme.colors.text.secondary} />
+                    ) : (
+                      <IoEyeOutline size={20} color={theme.colors.text.secondary} />
+                    )}
+                  </button>
+                </div>
                 {passwordError && <span style={styles.errorText}>{passwordError}</span>}
                 {!passwordError && password && (
                   <span style={styles.successText}>Password is strong</span>
@@ -466,16 +792,31 @@ const Onboarding = () => {
 
               <div style={styles.inputGroup}>
                 <label style={styles.label}>Confirm Password</label>
+                <div style={styles.passwordContainer}>
                 <input
-                  type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                   placeholder="Re-enter your password"
                   value={confirmPassword}
                   onChange={handleConfirmPasswordChange}
                   style={{
-                    ...styles.input,
+                      ...styles.passwordInput,
                     borderColor: confirmPasswordError ? theme.colors.error : theme.colors.border.medium,
                   }}
                 />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="password-toggle-button"
+                    style={styles.passwordToggle}
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  >
+                    {showConfirmPassword ? (
+                      <IoEyeOffOutline size={20} color={theme.colors.text.secondary} />
+                    ) : (
+                      <IoEyeOutline size={20} color={theme.colors.text.secondary} />
+                    )}
+                  </button>
+                </div>
                 {confirmPasswordError && <span style={styles.errorText}>{confirmPasswordError}</span>}
                 {!confirmPasswordError && confirmPassword && password === confirmPassword && (
                   <span style={styles.successText}>Passwords match</span>
@@ -545,9 +886,9 @@ const Onboarding = () => {
         {step === 3 && (
           <div className="fade-in" style={styles.stepContainer}>
             <h2 style={styles.title}>Favorite Cuisines</h2>
-            <p style={styles.subtitle}>Select all that you enjoy</p>
+            <p style={{ ...styles.subtitle, marginBottom: '16px' }}>Select all that you enjoy</p>
 
-            <div style={styles.cuisineGridContainer}>
+            <div className="cuisine-grid-scroll" style={styles.cuisineGridContainer}>
               {cuisines.map((cuisine, index) => (
                 <div
                   key={cuisine.name}
@@ -650,9 +991,10 @@ const styles = {
   progressContainer: {
     display: 'flex',
     gap: '8px',
-    padding: '40px 20px 16px 20px',
+    padding: '32px 16px 12px 16px',
     background: theme.colors.background.secondary,
     borderBottom: `1px solid ${theme.colors.border.light}`,
+    flexShrink: 0,
   },
   progressBar: {
     flex: 1,
@@ -661,23 +1003,27 @@ const styles = {
     transition: 'background 0.3s ease',
   },
   content: {
-    padding: '24px 20px',
+    flex: 1,
+    padding: '20px 16px',
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    minHeight: 0,
   },
   stepContainer: {
     display: 'flex',
     flexDirection: 'column',
   },
   title: {
-    fontSize: '28px',
+    fontSize: '24px',
     fontWeight: '600',
     color: theme.colors.text.primary,
-    marginBottom: '8px',
+    marginBottom: '6px',
     letterSpacing: '-0.5px',
   },
   subtitle: {
     fontSize: '15px',
     color: theme.colors.text.secondary,
-    marginBottom: '32px',
+    marginBottom: '24px',
   },
   infoBox: {
     display: 'flex',
@@ -702,7 +1048,7 @@ const styles = {
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '24px',
+    gap: '20px',
   },
   inputGroup: {
     display: 'flex',
@@ -845,6 +1191,35 @@ const styles = {
     background: 'white',
     transition: 'all 0.2s ease',
   },
+  passwordContainer: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+  },
+  passwordInput: {
+    width: '100%',
+    padding: '14px 48px 14px 16px',
+    border: `1px solid ${theme.colors.border.medium}`,
+    borderRadius: '12px',
+    fontSize: '15px',
+    outline: 'none',
+    background: 'white',
+    transition: 'all 0.2s ease',
+  },
+  passwordToggle: {
+    position: 'absolute',
+    right: '12px',
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '4px',
+    transition: 'all 0.2s ease',
+  },
   errorText: {
     fontSize: '13px',
     color: theme.colors.error,
@@ -942,23 +1317,29 @@ const styles = {
   cuisineGridContainer: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '16px',
-    padding: '20px 16px',
+    gap: '12px',
+    padding: '16px 12px',
     background: 'linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%)',
     borderRadius: '16px',
     border: '2px dashed #D1D5DB',
     boxShadow: 'inset 0 2px 8px rgba(0, 0, 0, 0.05)',
     marginTop: '8px',
+    maxHeight: 'calc(100vh - 280px)',
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    width: '100%',
+    boxSizing: 'border-box',
   },
   cuisineGridItem: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '8px',
+    gap: '6px',
     cursor: 'pointer',
-    padding: '8px',
+    padding: '4px',
     borderRadius: '12px',
     transition: 'all 0.2s ease',
+    minWidth: 0,
   },
   scrollWrapper: {
     position: 'relative',
@@ -1026,8 +1407,8 @@ const styles = {
     scrollSnapAlign: 'start',
   },
   cuisineCircle: {
-    width: '70px',
-    height: '70px',
+    width: '60px',
+    height: '60px',
     borderRadius: '50%',
     background: '#F9FAFB',
     border: 'none',
@@ -1035,27 +1416,34 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     transition: 'all 0.2s ease',
+    flexShrink: 0,
   },
   cuisineCircleSelected: {
     background: 'white',
-    border: `3px solid ${theme.colors.primary.main}`,
-    boxShadow: `0 0 0 3px rgba(59, 130, 246, 0.1)`,
+    border: `2px solid ${theme.colors.primary.main}`,
+    boxShadow: `0 0 0 2px rgba(59, 130, 246, 0.1)`,
   },
   cuisineEmoji: {
-    fontSize: '32px',
+    fontSize: '28px',
+    lineHeight: '1',
   },
   cuisineName: {
-    fontSize: '13px',
+    fontSize: '11px',
     fontWeight: '500',
     color: theme.colors.text.primary,
     textAlign: 'center',
+    lineHeight: '1.2',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word',
+    maxWidth: '100%',
   },
   footer: {
-    padding: '16px 20px calc(16px + env(safe-area-inset-bottom))',
+    padding: '12px 16px calc(12px + env(safe-area-inset-bottom))',
     display: 'flex',
-    gap: '12px',
+    gap: '10px',
     background: theme.colors.background.secondary,
     borderTop: `1px solid ${theme.colors.border.light}`,
+    flexShrink: 0,
   },
   backButton: {
     flex: 1,
@@ -1063,7 +1451,7 @@ const styles = {
     color: theme.colors.text.primary,
     border: `1px solid ${theme.colors.border.medium}`,
     borderRadius: '12px',
-    padding: '14px',
+    padding: '12px',
     fontSize: '15px',
     fontWeight: '600',
     cursor: 'pointer',
@@ -1075,12 +1463,170 @@ const styles = {
     color: 'white',
     border: 'none',
     borderRadius: '12px',
-    padding: '14px',
+    padding: '12px',
     fontSize: '15px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     boxShadow: '0 2px 8px rgba(37, 99, 235, 0.2)',
+  },
+  datePickerContainer: {
+    position: 'relative',
+    width: '100%',
+  },
+  datePickerInput: {
+    width: '100%',
+    padding: '14px 16px',
+    border: `1px solid ${theme.colors.border.medium}`,
+    borderRadius: '12px',
+    fontSize: '15px',
+    outline: 'none',
+    background: 'white',
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    cursor: 'pointer',
+  },
+  datePickerValue: {
+    color: theme.colors.text.primary,
+    fontSize: '15px',
+  },
+  calendarDropdown: {
+    position: 'absolute',
+    top: 'calc(100% + 8px)',
+    left: 0,
+    right: 0,
+    background: 'white',
+    border: `1px solid ${theme.colors.border.medium}`,
+    borderRadius: '16px',
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+    zIndex: 1000,
+    padding: '16px',
+    width: '100%',
+    maxHeight: 'calc(100vh - 200px)',
+    animation: 'fadeIn 0.2s ease',
+    overflowY: 'auto',
+  },
+  calendarHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '16px',
+  },
+  calendarNavButton: {
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '8px',
+    borderRadius: '8px',
+    color: theme.colors.text.primary,
+    transition: 'all 0.2s ease',
+  },
+  calendarMonthYear: {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+  },
+  calendarWeekdays: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(7, 1fr)',
+    gap: '4px',
+    marginBottom: '8px',
+  },
+  calendarWeekday: {
+    fontSize: '12px',
+    fontWeight: '600',
+    color: theme.colors.text.secondary,
+    textAlign: 'center',
+    padding: '8px 4px',
+  },
+  calendarDays: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(7, 1fr)',
+    gap: '4px',
+  },
+  calendarDayEmpty: {
+    height: '40px',
+  },
+  calendarDay: {
+    height: '40px',
+    border: 'none',
+    background: 'transparent',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '500',
+    color: theme.colors.text.primary,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  calendarDayDisabled: {
+    color: theme.colors.text.tertiary,
+    cursor: 'not-allowed',
+    opacity: 0.4,
+  },
+  calendarDaySelected: {
+    background: theme.colors.primary.main,
+    color: 'white',
+    fontWeight: '600',
+  },
+  calendarMonthYearClickable: {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+    cursor: 'pointer',
+    padding: '4px 8px',
+    borderRadius: '8px',
+    transition: 'all 0.2s ease',
+  },
+  monthYearGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '8px',
+  },
+  monthYearButton: {
+    padding: '12px 8px',
+    border: `1px solid ${theme.colors.border.medium}`,
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '500',
+    color: theme.colors.text.primary,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    background: 'white',
+    textAlign: 'center',
+  },
+  monthYearButtonSelected: {
+    background: theme.colors.primary.main,
+    color: 'white',
+    borderColor: theme.colors.primary.main,
+    fontWeight: '600',
+  },
+  yearListContainer: {
+    maxHeight: '300px',
+    overflowY: 'auto',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '8px',
+    padding: '4px',
+  },
+  yearButton: {
+    padding: '12px 8px',
+    border: `1px solid ${theme.colors.border.medium}`,
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '500',
+    color: theme.colors.text.primary,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    background: 'white',
+    textAlign: 'center',
   },
 };
 

@@ -483,6 +483,7 @@ const Decision = () => {
         {/* Your Groups Section */}
         <div style={styles.groupsSection}>
           <h3 style={styles.groupsSectionTitle}>Your Groups ({groups.length})</h3>
+          <p style={styles.pickerLabel}>Choose from existing groups</p>
 
           {/* Search Bar */}
           {groups.length > 0 && (
@@ -898,7 +899,7 @@ const styles = {
     fontSize: '18px',
     fontWeight: '600',
     color: theme.colors.text.primary,
-    marginBottom: '16px',
+    marginBottom: '6px',
   },
   searchContainer: {
     display: 'flex',

@@ -23,6 +23,7 @@ import SessionWaiting from './pages/SessionWaiting';
 import AdditionalMatches from './pages/AdditionalMatches';
 import Notifications from './pages/Notifications';
 import JoinWithCode from './pages/JoinWithCode';
+import HelpSupport from './pages/HelpSupport';
 
 // Helper function to calculate age from DOB
 const calculateAge = (dob) => {
@@ -144,6 +145,7 @@ const AppRoutes = ({ userId, useMemoryRouter = false }) => {
             <Route path="/error-states" element={<ErrorStates />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/join" element={<JoinWithCode />} />
+            <Route path="/help-support" element={<HelpSupport />} />
           </Routes>
         </MobileFrame>
       </RouterComponent>
