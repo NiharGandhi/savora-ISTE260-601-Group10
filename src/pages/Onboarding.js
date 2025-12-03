@@ -2,7 +2,24 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { theme } from '../styles/theme';
-import { IoInformationCircle, IoCalendarOutline, IoChevronBack, IoChevronForward, IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5';
+import { IoInformationCircle, IoCalendarOutline, IoChevronBack, IoChevronForward, IoEyeOutline, IoEyeOffOutline, IoCashOutline } from 'react-icons/io5';
+
+// UAE Dirham Symbol Component - Using official SVG from Wikimedia Commons
+const DirhamSymbol = ({ size = 12, color = 'currentColor' }) => (
+  <img 
+    src="https://upload.wikimedia.org/wikipedia/commons/e/ee/UAE_Dirham_Symbol.svg" 
+    alt="AED"
+    width={size}
+    height={size}
+    style={{ 
+      display: 'inline-block', 
+      verticalAlign: 'middle',
+      objectFit: 'contain',
+      marginRight: '1px',
+      filter: color !== 'currentColor' ? `brightness(0) saturate(100%) ${color === '#FFFFFF' || color === 'white' ? 'invert(1)' : ''}` : 'none'
+    }}
+  />
+);
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -833,26 +850,29 @@ const Onboarding = () => {
 
             <div style={styles.form}>
               <div style={styles.inputGroup}>
-                <label style={styles.label}>Budget Range</label>
-                <div style={styles.segmentedControl}>
+                <label style={styles.label}>Price Range</label>
+                <div style={styles.budgetButtonContainer}>
                   {budgetRanges.map((range, index) => (
                     <button
                       key={index}
                       type="button"
                       onClick={() => setBudgetRange(index)}
                       style={{
-                        ...styles.segmentButton,
-                        background: budgetRange === index ? theme.colors.primary.main : 'white',
-                        color: budgetRange === index ? 'white' : theme.colors.text.primary,
+                        ...styles.budgetButton,
+                        background: budgetRange === index ? theme.colors.primary.main : theme.colors.background.secondary,
+                        color: budgetRange === index ? theme.colors.text.white : theme.colors.text.primary,
                         borderColor: budgetRange === index ? theme.colors.primary.main : theme.colors.border.medium,
                       }}
                     >
-                      {range.value}
+                      {Array(index + 1).fill(0).map((_, i) => (
+                        <DirhamSymbol 
+                          key={i} 
+                          size={12} 
+                          color={budgetRange === index ? theme.colors.text.white : theme.colors.text.primary}
+                        />
+                      ))}
                     </button>
                   ))}
-                </div>
-                <div style={styles.rangeLabel}>
-                  {budgetRanges[budgetRange].label}
                 </div>
               </div>
 
@@ -1260,6 +1280,28 @@ const styles = {
     marginTop: '10px',
     textAlign: 'center',
     fontWeight: '500',
+  },
+  // Budget Range - New Style
+  budgetButtonContainer: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.sm,
+  },
+  budgetButton: {
+    padding: '10px 8px',
+    fontSize: '16px',
+    fontWeight: '400',
+    border: '1.5px solid',
+    borderRadius: '10px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    textAlign: 'center',
+    outline: 'none',
+    WebkitTapHighlightColor: 'transparent',
+    userSelect: 'none',
+    WebkitUserSelect: 'none',
+    MozUserSelect: 'none',
   },
   sliderContainer: {
     display: 'flex',
