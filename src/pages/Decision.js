@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { theme } from '../styles/theme';
-import { IoShuffle, IoAdd, IoPeople, IoChevronForward, IoArrowBack, IoChevronDown, IoRestaurant, IoPizza, IoBeer, IoCafe, IoFastFood, IoWine, IoIceCream, IoNutrition, IoBriefcase, IoHome, IoCalendarOutline, IoTimeOutline, IoFlash, IoSearch } from 'react-icons/io5';
+import { IoShuffle, IoAdd, IoPeople, IoChevronForward, IoArrowBack, IoChevronDown, IoRestaurant, IoPizza, IoBeer, IoCafe, IoFastFood, IoWine, IoIceCream, IoNutrition, IoBriefcase, IoHome, IoCalendarOutline, IoTimeOutline, IoFlash, IoSearch, IoLocationOutline } from 'react-icons/io5';
 
 const Decision = () => {
   const navigate = useNavigate();
@@ -10,6 +10,7 @@ const Decision = () => {
   const [timing, setTiming] = useState('now'); // 'now' or 'later'
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
+  const [customLocation, setCustomLocation] = useState('');
   const [showTimingMenu, setShowTimingMenu] = useState(false);
   const [showDateTimePicker, setShowDateTimePicker] = useState(false);
   const [tempDate, setTempDate] = useState('');
@@ -127,6 +128,7 @@ const Decision = () => {
       timing: timing,
       scheduledDate: timing === 'later' ? selectedDate : null,
       scheduledTime: timing === 'later' ? selectedTime : null,
+      location: timing === 'later' ? customLocation : null,
     };
     addSession(session);
     
@@ -181,6 +183,7 @@ const Decision = () => {
       timing: timing,
       scheduledDate: timing === 'later' ? selectedDate : null,
       scheduledTime: timing === 'later' ? selectedTime : null,
+      location: timing === 'later' ? customLocation : null,
     };
     addSession(session);
     
@@ -224,13 +227,14 @@ const Decision = () => {
 
         {/* Custom Timing Dropdown */}
         <div ref={dropdownRef} style={styles.dropdownContainer}>
+          <p style={styles.pickerLabel}>Dining Time</p>
           <button
             type="button"
             style={styles.customDropdownButton}
             onClick={() => setShowTimingMenu(!showTimingMenu)}
           >
             <span style={styles.dropdownText}>
-              {timing === 'now' ? 'Decide Now' : 'Plan for Later'}
+              {timing === 'now' ? 'Plan for Now' : 'Plan for Later'}
             </span>
             <IoChevronDown 
               size={18} 
@@ -260,7 +264,7 @@ const Decision = () => {
                   ...styles.dropdownOptionText,
                   color: timing === 'now' ? theme.colors.primary.main : theme.colors.text.primary,
                 }}>
-                  Decide Now
+                  Plan for Now
                 </span>
               </button>
               <button
@@ -288,126 +292,148 @@ const Decision = () => {
 
         {/* Combined Date and Time Picker (shown when "Plan for Later" is selected) */}
         {timing === 'later' && (
-          <div style={styles.dateTimeContainer} className="fade-in" ref={dateTimePickerRef}>
-            <button 
-              type="button"
-              style={{
-                ...styles.dateTimeButton,
-                borderColor: (selectedDate && selectedTime) ? theme.colors.primary.main : theme.colors.border.light,
-              }}
-              onClick={openDateTimePicker}
-            >
-              <div style={styles.buttonContent}>
-                <IoCalendarOutline size={16} color={(selectedDate && selectedTime) ? theme.colors.primary.main : theme.colors.text.secondary} />
-                <div style={styles.buttonText}>
-                  <div style={styles.buttonLabel}>When</div>
-                  <div style={{
-                    ...styles.buttonValue,
-                    color: (selectedDate && selectedTime) ? theme.colors.text.primary : theme.colors.text.secondary,
-                  }}>
-                    {(selectedDate && selectedTime) 
-                      ? `${new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${new Date(`2000-01-01T${selectedTime}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
-                      : 'Select date & time'}
-                  </div>
-                </div>
-              </div>
-            </button>
-
-            {/* Combined Date & Time Picker Modal */}
-            {showDateTimePicker && (
-              <div style={styles.dateTimePickerModal}>
-                <div style={styles.pickerHeader}>
-                  <span style={styles.pickerTitle}>Select Date & Time</span>
-                </div>
-
-                {/* Date Input */}
-                <div style={styles.pickerSection}>
-                  <label style={styles.pickerLabel}>
-                    <IoCalendarOutline size={14} style={{ marginRight: '6px' }} />
-                    Date
-                  </label>
-                  <div style={styles.dateInputWrapper}>
-                    <input
-                      type="date"
-                      value={tempDate}
-                      onChange={(e) => setTempDate(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                      style={styles.datePickerInput}
-                      onClick={(e) => {
-                        if (e.target.showPicker) {
-                          e.target.showPicker();
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Time Selection */}
-                <div style={styles.pickerSection}>
-                  <label style={styles.pickerLabel}>
-                    <IoTimeOutline size={14} style={{ marginRight: '6px' }} />
-                    Time
-                  </label>
-                  <div style={styles.timeDisplay}>
-                    <select 
-                      value={tempHour}
-                      onChange={(e) => setTempHour(e.target.value)}
-                      style={styles.timeSelect}
-                    >
-                      {hours.map(hour => (
-                        <option key={hour} value={hour}>{hour}</option>
-                      ))}
-                    </select>
-                    
-                    <span style={styles.timeSeparator}>:</span>
-                    
-                    <select 
-                      value={tempMinute}
-                      onChange={(e) => setTempMinute(e.target.value)}
-                      style={styles.timeSelect}
-                    >
-                      {minutes.map(minute => (
-                        <option key={minute} value={minute}>{minute}</option>
-                      ))}
-                    </select>
-                    
-                    <div style={styles.periodToggle}>
-                      <button
-                        type="button"
-                        style={{
-                          ...styles.periodButton,
-                          background: tempPeriod === 'AM' ? theme.colors.primary.main : 'transparent',
-                          color: tempPeriod === 'AM' ? '#fff' : theme.colors.text.secondary,
-                        }}
-                        onClick={() => setTempPeriod('AM')}
-                      >
-                        AM
-                      </button>
-                      <button
-                        type="button"
-                        style={{
-                          ...styles.periodButton,
-                          background: tempPeriod === 'PM' ? theme.colors.primary.main : 'transparent',
-                          color: tempPeriod === 'PM' ? '#fff' : theme.colors.text.secondary,
-                        }}
-                        onClick={() => setTempPeriod('PM')}
-                      >
-                        PM
-                      </button>
+          <>
+            <div style={styles.dateTimeContainer} className="fade-in" ref={dateTimePickerRef}>
+              <button 
+                type="button"
+                style={{
+                  ...styles.dateTimeButton,
+                  borderColor: (selectedDate && selectedTime) ? theme.colors.primary.main : theme.colors.border.light,
+                }}
+                onClick={openDateTimePicker}
+              >
+                <div style={styles.buttonContent}>
+                  <IoCalendarOutline size={16} color={(selectedDate && selectedTime) ? theme.colors.primary.main : theme.colors.text.secondary} />
+                  <div style={styles.buttonText}>
+                    <div style={styles.buttonLabel}>When</div>
+                    <div style={{
+                      ...styles.buttonValue,
+                      color: (selectedDate && selectedTime) ? theme.colors.text.primary : theme.colors.text.secondary,
+                    }}>
+                      {(selectedDate && selectedTime) 
+                        ? `${new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${new Date(`2000-01-01T${selectedTime}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
+                        : 'Select date & time'}
                     </div>
                   </div>
                 </div>
+              </button>
 
-                <button
-                  type="button"
-                  style={styles.confirmButton}
-                  onClick={handleDateTimeConfirm}
-                >
-                  Confirm
-                </button>
+              {/* Combined Date & Time Picker Modal */}
+              {showDateTimePicker && (
+                <div style={styles.dateTimePickerModal}>
+                  <div style={styles.pickerHeader}>
+                    <span style={styles.pickerTitle}>Select Date & Time</span>
+                  </div>
+
+                  {/* Date Input */}
+                  <div style={styles.pickerSection}>
+                    <label style={styles.pickerLabel}>
+                      <IoCalendarOutline size={14} style={{ marginRight: '6px' }} />
+                      Date
+                    </label>
+                    <div style={styles.dateInputWrapper}>
+                      <input
+                        type="date"
+                        value={tempDate}
+                        onChange={(e) => setTempDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        style={styles.datePickerInput}
+                        onClick={(e) => {
+                          if (e.target.showPicker) {
+                            e.target.showPicker();
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Time Selection */}
+                  <div style={styles.pickerSection}>
+                    <label style={styles.pickerLabel}>
+                      <IoTimeOutline size={14} style={{ marginRight: '6px' }} />
+                      Time
+                    </label>
+                    <div style={styles.timeDisplay}>
+                      <select 
+                        value={tempHour}
+                        onChange={(e) => setTempHour(e.target.value)}
+                        style={styles.timeSelect}
+                      >
+                        {hours.map(hour => (
+                          <option key={hour} value={hour}>{hour}</option>
+                        ))}
+                      </select>
+                      
+                      <span style={styles.timeSeparator}>:</span>
+                      
+                      <select 
+                        value={tempMinute}
+                        onChange={(e) => setTempMinute(e.target.value)}
+                        style={styles.timeSelect}
+                      >
+                        {minutes.map(minute => (
+                          <option key={minute} value={minute}>{minute}</option>
+                        ))}
+                      </select>
+                      
+                      <div style={styles.periodToggle}>
+                        <button
+                          type="button"
+                          style={{
+                            ...styles.periodButton,
+                            background: tempPeriod === 'AM' ? theme.colors.primary.main : 'transparent',
+                            color: tempPeriod === 'AM' ? '#fff' : theme.colors.text.secondary,
+                          }}
+                          onClick={() => setTempPeriod('AM')}
+                        >
+                          AM
+                        </button>
+                        <button
+                          type="button"
+                          style={{
+                            ...styles.periodButton,
+                            background: tempPeriod === 'PM' ? theme.colors.primary.main : 'transparent',
+                            color: tempPeriod === 'PM' ? '#fff' : theme.colors.text.secondary,
+                          }}
+                          onClick={() => setTempPeriod('PM')}
+                        >
+                          PM
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    style={styles.confirmButton}
+                    onClick={handleDateTimeConfirm}
+                  >
+                    Confirm
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Location Input (shown when "Plan for Later" is selected) */}
+            <div style={styles.locationContainer} className="fade-in">
+              <div style={{
+                ...styles.locationInputWrapper,
+                borderColor: customLocation ? theme.colors.primary.main : theme.colors.border.light,
+              }}>
+                <IoLocationOutline 
+                  size={16} 
+                  color={customLocation ? theme.colors.primary.main : theme.colors.text.secondary} 
+                  style={{ flexShrink: 0 }}
+                />
+                <input
+                  type="text"
+                  placeholder="Enter location (optional)"
+                  value={customLocation}
+                  onChange={(e) => setCustomLocation(e.target.value)}
+                  style={styles.locationInput}
+                />
               </div>
-            )}
-          </div>
+            </div>
+          </>
         )}
 
         {/* Create New Group Button */}
@@ -624,6 +650,29 @@ const styles = {
   dateTimeContainer: {
     marginBottom: '20px',
     position: 'relative',
+  },
+  locationContainer: {
+    marginBottom: '20px',
+  },
+  locationInputWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    background: 'white',
+    border: `1px solid ${theme.colors.border.light}`,
+    borderRadius: '10px',
+    padding: '10px 12px',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+  },
+  locationInput: {
+    flex: 1,
+    border: 'none',
+    outline: 'none',
+    fontSize: '13px',
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+    background: 'transparent',
   },
   dateTimeButton: {
     width: '100%',
