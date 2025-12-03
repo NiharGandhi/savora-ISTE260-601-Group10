@@ -234,7 +234,17 @@ const Decision = () => {
             onClick={() => setShowTimingMenu(!showTimingMenu)}
           >
             <span style={styles.dropdownText}>
-              {timing === 'now' ? 'Plan for Now' : 'Plan for Later'}
+              {timing === 'now' ? (
+                <>
+                  <IoFlash size={16} color={theme.colors.primary.main} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                  Plan for Now
+                </>
+              ) : (
+                <>
+                  <IoCalendarOutline size={16} color={theme.colors.primary.main} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                  Plan for Later
+                </>
+              )}
             </span>
             <IoChevronDown 
               size={18} 
